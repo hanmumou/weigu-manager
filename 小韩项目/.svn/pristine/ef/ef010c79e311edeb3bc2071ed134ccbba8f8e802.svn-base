@@ -1,3 +1,0 @@
-import { GET } from '@/utils/request'
-
-export const getList = () => GET('api/team')

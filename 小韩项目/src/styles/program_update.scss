@@ -1,0 +1,39 @@
+// 更新小程序页面总容器样式
+.update-continer .hasAdd,
+.update-continer .notAdd{
+    margin-top:100px;
+}
+// 更新小程序页面无更新的总容器样式
+.update-continer .notAdd{
+    margin-top:100px;
+}
+// 更新小程序页面有更新版本中图片容器样式
+.update-continer .hasAdd .updateImg,
+.update-continer .notAdd .notImg{
+    border:1px dashed #ccc;
+}
+// 更新小程序页面有更新版本中图片样式
+.update-continer .hasAdd .updateImg img,
+.update-continer .notAdd .notImg img{
+    width:100%;
+}
+
+// 更新小程序页面有更新版本中按钮容器样式
+.update-continer .hasAdd .updateBtn{
+    padding:0 45px;
+}
+
+// 更新小程序页面有更新版本中按钮样式
+.update-continer .hasAdd .updateBtn button{
+    width:100%;
+    border-radius: 30px;
+    height:60px;
+}
+
+// 更新小程序页面无更新状态文本样式
+.update-continer .notAdd .content{
+    text-align: center;
+    margin: 56px;
+    color:#878787;
+    font-size:20px;
+}

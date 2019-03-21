@@ -1,0 +1,349 @@
+<template>
+  <div class="goodsmanage-box">
+    <el-form :model="goodsForm" :label-position="right" label-width="120px" hide-required-asterisk="true">
+      <el-form-item required label="选择分类：">
+        <el-select v-model="goodsForm.category_id">
+          <el-option v-for="item in categoryList" :value="item.id" :label="item.name" :key="item.id"/>
+        </el-select>
+      </el-form-item>
+      <el-form-item required label="展示区域：">
+        <el-select v-model="goodsForm.show_region.province_id" @change="changeP">
+          <el-option value="1" label="全国"/>
+          <el-option v-for="item in provinceList" :value="item.province_id" :label="item.name" :key="item.province_id" />
+        </el-select>
+        <el-select v-model="goodsForm.show_region.city_id">
+          <el-option v-for="item in cityList" :value="item.city_id" :label="item.name" :key="item.city_id" />
+        </el-select>
+      </el-form-item>
+      <el-form-item required label="产品名称：">
+        <el-input v-model="goodsForm.name" class="inp" placeholder="请输入所售产品名称"/>
+      </el-form-item>
+      <el-form-item label="产品副标题：">
+        <el-input v-model="goodsForm.introduce" class="inp" placeholder="对产品的简单简介"/>
+      </el-form-item>
+      <el-form-item required label="产品主图：">
+        <el-upload
+          :show-file-list="false"
+          :data="banner"
+          :headers="GetToken()"
+          :on-success="handleAvatarSuccess"
+          :before-upload="beforeAvatarUpload"
+          class="avatar-uploader"
+          action="https://community.suokekj.com/api/images/upload">
+          <img v-if="goodsForm.main_picture" :src="goodsForm.main_picture" class="avatar">
+          <i v-else class="el-icon-plus avatar-uploader-icon" />
+        </el-upload>
+        <div class="tips">图片大小控制在2M以内，宽686*高420象素</div>
+      </el-form-item>
+      <el-form-item label="产品详情图：">
+        <el-upload
+          :multiple="true"
+          :data="AddImageUrl"
+          :headers="GetToken()"
+          :on-success="addImageSuccess"
+          :on-remove="handleRemove"
+          :before-upload="addImageBefore"
+          :file-list="dialogImageUrl.image"
+          action="https://community.suokekj.com/api/images/upload"
+          list-type="picture-card">
+          <!-- <img v-if="dialogImageUrl" :src="dialogImageUrl" class="avatars" > -->
+          <i class="el-icon-plus"/>
+        </el-upload>
+        <div class="tips">图片大小控制在2M以内，宽750*高512象素</div>
+      </el-form-item>
+      <el-form-item label="主图视频链接：">
+        <el-input v-model="goodsForm.video_url" class="inp" />
+      </el-form-item>
+      <el-form-item required label="产品团购价：">
+        <el-input v-model="goodsForm.price" class="inp" placeholder="请输入产品原价" />
+      </el-form-item>
+      <el-form-item required label="产品原价：">
+        <el-input v-model="goodsForm.original_price" class="inp" placeholder="请输入产品原价" />
+      </el-form-item>
+      <el-form-item required label="成本价：">
+        <el-input v-model="goodsForm.cost_price" class="inp" placeholder="请输入成本价" />
+      </el-form-item>
+      <el-form-item required label="产品规格：">
+        <el-radio v-model="spec" label="1">开启规格</el-radio>
+        <el-radio v-model="spec" label="0">关闭规格</el-radio>
+      </el-form-item>
+      <el-form-item required label="开始时间：">
+        <el-date-picker v-model="goodsForm.start_at" value-format="yyyy-MM-dd HH:mm:ss" type="datetime" placeholder="选择开始时间" />
+      </el-form-item>
+      <el-form-item required label="结束时间：">
+        <el-date-picker v-model="goodsForm.end_at" value-format="yyyy-MM-dd HH:mm:ss" type="datetime" placeholder="选择结束时间" />
+      </el-form-item>
+      <el-form-item label="预配送日期：">
+        <el-date-picker v-model="goodsForm.delivery_at" value-format="yyyy-MM-dd HH:mm:ss" type="datetime" placeholder="选择结束时间" />
+        <div class="tips">预配送时间为选填项</div>
+      </el-form-item>
+      <el-form-item label="商品限购量：">
+        <el-input v-model="goodsForm.goods_limit_stock" class="inp" placeholder="填入商品限购数量" />
+        <div class="tips">限购数量为0时，不限购</div>
+      </el-form-item>
+      <el-form-item required label="商品库存：">
+        <el-input v-model="goodsForm.stock" class="inp" placeholder="填入商品库存" />
+      </el-form-item>
+      <el-form-item required label="团长佣金：">
+        <el-input v-model="goodsForm.commission" class="inp" placeholder="10" />
+        <div class="tips">团长佣金以元为单为计算，可保留小数点后两位</div>
+      </el-form-item>
+      <el-form-item label="产品状态：">
+        <el-input v-model="goodsForm.goods_type" class="inp" placeholder="例：自营，特价" />
+        <div class="tips">词最多不要超四字，每个词间用逗号隔开</div>
+      </el-form-item>
+      <el-form-item label="商品详情：">
+        <tinymce ref="box" v-model="content" class="textarea"/>
+      </el-form-item>
+      <el-form-item>
+        <el-button type="primary" @click="onSubmit(goodsForm)">{{ btnText }}</el-button>
+      </el-form-item>
+    </el-form>
+  </div>
+</template>
+
+<script>
+import tinymce from '@/components/tinymce'
+import { getFenlei, getP, addGoods, goodsView } from '@/api/exportgoods'
+import { getToken } from '@/utils/auth'
+
+export default {
+  components: { tinymce },
+  data() {
+    return {
+      goodsForm: {
+        category_id: '',
+        show_region_type: '',
+        show_region: {
+          province_id: '1',
+          city_id: ''
+        },
+        name: '',
+        introduce: '',
+        main_picture: '',
+        detail_picture: [],
+        video_url: '',
+        price: '',
+        original_price: '',
+        cost_price: '',
+        goods_sku_status: '0',
+        goods_sku: [],
+        start_at: '',
+        end_at: '',
+        delivery_at: '',
+        goods_limit_stock: '',
+        stock: '',
+        commission: '',
+        goods_type: '',
+        details: ''
+      },
+      headers: { // 图片请求头部
+        Authorization: ''
+      },
+      banner: {
+        dirname: 'companies',
+        images: ''
+      },
+      categoryList: '', // 分类集合
+      provinceList: '', // 省集合
+      cityList: '', // 市集合
+      content: '', // 富文本
+      dialogImageUrl: [], // 多图上传
+      AddImageUrl: {
+        dirname: 'companies',
+        images: ''
+      },
+      btnText: '确认提交',
+      spec: '0'
+    }
+  },
+  watch: {
+    spec(val) {
+      if (val === '1') {
+        this.btnText = '下一步 填写规格'
+      }
+    }
+  },
+  created: function() {
+    if (this.$route.query.id) {
+      this.getView()
+    }
+  },
+  mounted: function() {
+    this.getLei()
+    this.getProvince()
+  },
+  methods: {
+    // 编辑获取信息
+    async getView() {
+      try {
+        const res = await goodsView(this.$route.query.id)
+        this.goodsForm = res
+        if (res.show_region_type === 0) {
+          this.goodsForm.show_region.province_id = '1'
+        }
+        if (res.goods_sku_status === true) {
+          this.spec = '1'
+        }
+        this.$refs.box.setContent(res.details)
+        if (res.detail_picture.length > 0) {
+          for (let i = 0; i < res.detail_picture.length; i++) {
+            this.dialogImageUrl.push({
+              name: res.detail_picture[i].id,
+              url: res.detail_picture[i].image
+            })
+          }
+        }
+      } catch (err) {
+        console.log(err)
+      }
+    },
+    // 获取分类
+    async getLei() {
+      try {
+        const res = await getFenlei()
+        this.categoryList = res.data
+      } catch (err) {
+        console.log(err)
+      }
+    },
+    // 获取省
+    async getProvince() {
+      try {
+        const res = await getP(1)
+        this.provinceList = res.data
+      } catch (err) {
+        console.log(err)
+      }
+    },
+    changeP() {
+      this.getCity()
+    },
+    async getCity() {
+      const data = JSON.stringify({ 'province_id': this.goodsForm.show_region.province_id })
+      try {
+        const res = await getP(2, data)
+        this.cityList = res.data
+      } catch (err) {
+        console.log(err)
+      }
+    },
+    // 添加路径到imageUrl之前
+    beforeAvatarUpload(res) {
+      this.banner['images'] = res
+    },
+    // 添加路径到ImageUrl中
+    handleAvatarSuccess(res) {
+      this.goodsForm.main_picture = res.path
+    },
+    // 图片上传获取到token
+    GetToken() {
+      const res = getToken()
+      this.headers.Authorization = 'Bearer ' + res
+      return this.headers
+    },
+    // 路径添加到this.dialogImageUrl的数组中
+    handleAdd(file, fileList) {
+      this.dialogImageUrl.push(fileList.url)
+      console.log(this.dialogImageUrl)
+      console.log(file, fileList)
+    },
+    handleRemove(file, fileList) {
+      // 文件列表移除
+      this.dialogImageUrl = this.dialogImageUrl.splice(this.remove(this.dialogImageUrl, file.response.path), 1)
+    },
+    remove(arr, value) {
+      var i = arr.length
+      while (i--) {
+        if (arr[i] === value) {
+          return i
+        }
+      }
+      return false
+    },
+    // 详情图
+    addImageSuccess(res) {
+      this.dialogImageUrl.push({ 'image': res.path })
+    },
+    addImageBefore(res) {
+      this.AddImageUrl['images'] = res
+    },
+    // 提交
+    async onSubmit(val) {
+      val.detail_picture = JSON.stringify(this.dialogImageUrl)
+      val.details = this.content
+      val.goods_sku_status = this.spec
+      if (val.goods_sku_status === '0') {
+        val.goods_sku = ''
+      }
+      val.cost_price = 10
+      if (val.show_region.province_id === '1') {
+        val.show_region_type = 1
+        val.show_region = JSON.stringify({
+          province_id: '',
+          city_id: ''
+        })
+      } else {
+        val.show_region_type = 0
+        val.show_region = JSON.stringify(val.show_region)
+      }
+      if (this.btnText === '确认提交') {
+        try {
+          await addGoods(val)
+          this.$message({
+            message: '提交成功',
+            type: 'success'
+          })
+        } catch (err) {
+          console.log(err)
+        }
+      } else {
+        // 跳转添加规格
+        this.$router.push({ name: 'spec', params: val })
+      }
+    }
+  }
+}
+</script>
+
+<style scoped>
+  .goodsmanage-box{
+    width: 100%;
+    height: 100%;
+    font-size: 14px;
+    padding: 40px 0 0 60px;
+  }
+  .inp{
+    width: 40em;
+  }
+  .textarea{
+    width: 45em;
+  }
+  .tips{
+    font-size: 14px;
+    color: #999999;
+  }
+  .avatar-uploader .el-upload {
+    border: 1px dashed #d9d9d9;
+    border-radius: 6px;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+  }
+  .avatar-uploader .el-upload:hover {
+    border-color: #409EFF;
+  }
+  .avatar-uploader-icon {
+    font-size: 28px;
+    color: #8c939d;
+    width: 178px;
+    height: 178px;
+    line-height: 178px;
+    text-align: center;
+  }
+  .avatar {
+    width: 178px;
+    height: 178px;
+    display: block;
+  }
+</style>

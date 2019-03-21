@@ -1,0 +1,568 @@
+<template>
+	<div class="dad-container">
+		<div class="dad">
+			<!--这是第一个模块-->
+			<div class="dad_one">
+				<!--第一行-->
+				<div class="one">
+					<div class="one_city">配送区域:</div>
+					<el-radio-group v-model="distribution" @change="isdistribution">
+						<el-radio label="1">全国</el-radio>
+						<el-radio label="2" >区域配送</el-radio>
+					</el-radio-group>
+				</div>
+				<!--第一行结束-->
+				<!--第二行-->
+				<div :class="[ishiden,isshow]" v-if="distribution=='2'">
+					<div class="two">
+						<span class="two_se">选择省：</span>
+						<el-select v-model="province_id" placeholder="省" class="area" @change="selChange">
+							<el-option v-for="item in area_province" :key="item.province_id" :label="item.name" :value="item.province_id" />
+						</el-select>
+						<span class="two_se">选择市：</span>
+						<el-select v-model="city_id" placeholder="市" class="area">
+							<el-option v-for="item in area_city" :key="item.city_id" :label="item.name" :value="item.city_id" />
+						</el-select>
+						<el-button type="primary" class="anniu" @click="addcity">确认</el-button>
+					</div>
+					<div class="stra">
+						注：可以绑定多个城市
+					</div>
+					<!--第二行结束-->
+					<!--第三行-->
+					<div class="three">
+						<el-table :data="citydata" style="width: 100%" align="center">
+							<!-- <el-table-column prop="id" label="城市id" min-width="10%" align="center"/> -->
+							<el-table-column prop="province_name" label="省份名称" min-width="10%" align="center" />
+							<el-table-column prop="city_name" label="城市名称" min-width="10%" align="center" />
+							<el-table-column label="操作" min-width="10%" align="center">
+								<template slot-scope="scope">
+									<el-button type="text" @click="romovecity(scope.row)">删除</el-button>
+								</template>
+							</el-table-column>
+						</el-table>
+					</div>
+					<!--第三行结束-->
+				</div>
+			</div>
+			<!--第一个模块结束-->
+			<div class="all">
+				<!--第二个模块-->
+				<div class="dad_two">
+					<div class="two_row">
+						<div class="row_l">选择配送方式:</div>
+						<el-select v-model="value" placeholder="请选择" class="sel_in">
+							<el-option v-for="item in options2" :key="item.value" :label="item.label" :value="item.value" />
+						</el-select>
+					</div>
+					<div class="two_row">
+						<div class="row_l">转发显示:</div>
+						<el-select v-model="value1" placeholder="请选择" class="sel_in">
+							<el-option v-for="item in options3" :key="item.value" :label="item.label" :value="item.value" />
+						</el-select>
+					</div>
+					<div class="two_row">
+						<div class="row_l">技术支持:</div>
+						<el-input v-model="technical_support" placeholder="例：xx商贸公司" class="global_other" />
+					</div>
+					<div class="two_row">
+						<div class="row_l">团长加盟热线:</div>
+						<el-input v-model="affiliate_hotline" placeholder="请输入热线电话" class="global_other" />
+					</div>
+					<div class="two_row">
+						<div class="row_l">优质商品推荐:</div>
+						<el-input v-model="quality_merchandise_recommend" placeholder="以纯商店" class="global_other" />
+					</div>
+				</div>
+				<!--第二个模块结束-->
+				<!--第三个模块-->
+				<div class="dad_three">
+					<div class="three_row">
+						<div class="row_row">
+							<div class="three_l">提现金额:</div>
+							<el-input v-model="cash_withdrawal_amount" placeholder="请输入最小提现金额 例：200" class="three_2">元</el-input>
+						</div>
+						<div class="global_word">此处为团长和取货点前台最小提现金额，未达到此金额不能提现</div>
+					</div>
+					<!--<div class="three_row">
+						<div class="row_row">
+							<div class="three_l">团长推广佣金:</div>
+							<el-input  v-model="distribution_fee" placeholder="请输入团长推广提成" class="three_2">%</el-input>
+						</div>
+						<div class="global_word">团长提成为推广提成总销售的百分比</div>
+					</div>-->
+					<div class="three_row">
+						<div class="row_row">
+							<div class="three_l">取货点配送费:</div>
+							<el-input v-model="national_express_fee" placeholder="请输入团长配送入户费用 例：3" class="three_2">元</el-input>
+						</div>
+						<div class="global_word">用户要求取货点送货上门时送货费，费用归取货点佣金</div>
+					</div>
+					<div class="three_row">
+						<div class="row_row">
+							<div class="three_l">全国快递费:</div>
+							<el-input v-model="promotion_commission"  placeholder="请输入快递金额" class="global_other three_2">元</el-input>
+						</div>
+						<div class="global_word">用户要求取货点送货上门时送货费，费用归取货点佣金</div>
+					</div>
+					<!--运动积分暂时去掉了-->
+					<div class="three_row">
+						<!--<div class="row_row">
+							<div class="three_l">运动积分：</div>
+							<div class="three_2">
+								<el-radio-group v-model="motion_integral">
+									<el-radio :label="1">开启</el-radio>
+									<el-radio :label="2">关闭</el-radio>
+								</el-radio-group>
+							</div>
+						</div>-->
+					</div>
+					<div class="three_row">
+						<div class="row_row">
+							<div class="three_l">团长排行：</div>
+							<div class="three_2">
+								<el-radio-group v-model="rank_of_head_of_regiment">
+									<el-radio :label="1">开启</el-radio>
+									<el-radio :label="2">关闭</el-radio>
+								</el-radio-group>
+							</div>
+						</div>
+					</div>
+				</div>
+				<!--第三个模块结束-->
+			</div>
+			<!--清除浮动样式-->
+			<div class="clear" />
+			<!--清除浮动样式结束-->
+			<!--按钮-->
+			<div class="global_btn">
+				<el-button type="primary" class="bbb" @click="submit">确认提交</el-button>
+			</div>
+			<!--按钮结束-->
+		</div>
+	</div>
+</template>
+<script>
+	import { getprovice, getCity, globalList, globalupdata, globaladdAll, globaladdArea } from '@/api/globalseeting'
+	export default {
+		data() {
+			return {
+				// sad
+				differ: null,
+				id: '',
+				addCity: {
+					city_id: '',
+					city_name: '',
+					province_id: '',
+					province_name: ''
+				},
+				// 添加区域
+				addProvice: {},
+				province_id: '',
+				city_id: '',
+				// 是否显示区域配送列表
+				ishiden: '',
+				isshow: '',
+				// 二级联动
+				provinceValue: '',
+				area_province: '',
+				area_city: '',
+				cityValue: '',
+				checkList: ['全国'],
+				province: [],
+				city: [],
+				value: '',
+				value1: '',
+				value2: '',
+				tabledata: '',
+				citydata: [],
+				options2: [{
+						value: 1,
+						label: '送货上门'
+					},
+					{
+						value: 2,
+						label: '取货点自提'
+					}
+				],
+				value3: '',
+				options3: [{
+						value: 1,
+						label: '显示全部提货点'
+					},
+					{
+						value: 2,
+						label: '只显示团长一个提货点'
+					}
+				],
+				input: '',
+				input1: '',
+				input2: '',
+				input3: '',
+				distribution: '', // 配送区域
+				movement: '', // 运动积分
+				ranking: '', // 团长排行
+				technical_support: '',
+				affiliate_hotline: '',
+				quality_merchandise_recommend: '',
+				cash_withdrawal_amount: '',
+				promotion_commission: '',
+				distribution_fee: '',
+				national_express_fee: '',
+				motion_integral: '',
+				rank_of_head_of_regiment: '',
+				listcity: []
+			}
+		},
+		mounted: function() {
+			this.getpro()
+			this.globallist()
+		},
+		methods: {
+			// 切换配送区域盒子
+			isdistribution() {
+				if(this.distribution === '1') {
+					this.ishiden = 'ishiden'
+				} else if(this.distribution === '2') {
+					this.ishiden = ''
+				}
+			},
+			// 二级联动操作
+			selChange(val) {
+				this.city_id = ''
+				this.provinceid = val
+				this.getcity()
+			},
+			// 获取城市
+			async getpro() {
+				try {
+					const type = 1
+					const res = await getprovice(type)
+					this.area_province = res.data
+				} catch(err) {
+					console.log(err)
+				}
+			},
+			// 获取县
+			async getcity() {
+				const data = JSON.stringify({
+					'province_id': this.provinceid
+				})
+				try {
+					const type = 2
+					const res = await getCity(type, data)
+					this.area_city = res.data
+				} catch(err) {
+					console.log(err)
+				}
+			},
+			// 获取页面信息
+			async globallist() {
+				try {
+					const res = await globalList()
+					this.id = res.data[0].id
+					this.distribution = res.data[0].distribution_area + ''
+					this.value = res.data[0].distribution_mode
+					this.value1 = res.data[0].forwarding_display
+					this.technical_support = res.data[0].technical_support
+					this.affiliate_hotline = res.data[0].affiliate_hotline
+					this.quality_merchandise_recommend = res.data[0].quality_merchandise_recommend
+					this.cash_withdrawal_amount = res.data[0].cash_withdrawal_amount
+					this.promotion_commission = res.data[0].promotion_commission
+					this.distribution_fee = res.data[0].distribution_fee
+					this.national_express_fee = res.data[0].national_express_fee
+					this.motion_integral = res.data[0].motion_integral
+					this.rank_of_head_of_regiment = res.data[0].rank_of_head_of_regiment
+					this.citydata = res.data[0].foundation_region_data
+					this.differ = true
+				} catch(err) {
+					console.log(err)
+				}
+			},
+			// 添加操作
+			addcity() {
+				//    if (this.citydata.length > 2) {
+				//      return this.$message({
+				//        type: 'warning',
+				//        message: '最多绑定3个城市!'
+				//      })
+				//    }  //  可以绑定多个城市
+				let addCity = {
+					'city_id': '',
+					'city_name': '',
+					'province_id': '',
+					'province_name': ''
+				}
+				for(const i in this.area_province) {
+					if(this.province_id === this.area_province[i].province_id) {
+						addCity.province_id = this.province_id
+						addCity.province_name = this.area_province[i].name
+					}
+				}
+				for(const i in this.area_city) {
+					if(this.city_id === this.area_city[i].city_id) {
+						addCity.city_id = this.city_id
+						addCity.city_name = this.area_city[i].name
+					}
+				}
+				this.citydata.push(addCity)
+			},
+			// 删除操作
+			romovecity(row) {
+				for(const i in this.citydata) {
+					if(row.city_id === this.citydata[i].city_id) {
+						this.citydata.splice(i, 1)
+					}
+				}
+			},
+			// 更新操作
+			async updataGlobal() {
+				const region_json = JSON.stringify(this.citydata)
+				try {
+					const res = await globalupdata(this.id, this.distribution, this.value, this.value1, this.technical_support, this.affiliate_hotline, this.quality_merchandise_recommend,
+						this.cash_withdrawal_amount, this.national_express_fee, this.promotion_commission, this.distribution_fee, this.motion_integral, this.rank_of_head_of_regiment, region_json)
+					if(res.status === 200) {
+						this.$message({
+							type: 'success',
+							message: '提交成功!'
+						})
+					}
+				} catch(err) {
+					this.$message({
+						type: 'warning',
+						message: '异常信息'
+					})
+				}
+			},
+			// 提交判断是更新还是添加
+			submit() {
+				if(this.differ) {
+					this.updataGlobal()
+				} else {
+					this.addGlobal()
+				}
+			},
+			// 添加全局设置
+			async addGlobal() {
+				let region_json = ''
+				//当前选择是全国
+				if(this.distribution === '1') {
+					try {
+						// eslint-disable-next-line no-unused-vars
+						const res = await globaladdAll(this.distribution, this.value, this.value1, this.technical_support, this.affiliate_hotline, this.quality_merchandise_recommend,
+							this.cash_withdrawal_amount, this.national_express_fee, this.promotion_commission, this.distribution_fee, this.motion_integral, this.rank_of_head_of_regiment, region_json)
+						if(res.status === 201) {
+							this.$message({
+								type: 'success',
+								message: '提交成功!'
+							})
+						}
+					} catch(err) {
+						console.log(err)
+					}
+				} else if(this.distribution === '2') { //当前选的是区域配送
+					region_json = JSON.stringify(this.citydata)
+					try {
+						// eslint-disable-next-line no-unused-vars
+						const res = await globaladdArea(this.distribution, this.value, this.value1, this.technical_support, this.affiliate_hotline, this.quality_merchandise_recommend,
+							this.cash_withdrawal_amount, this.national_express_fee, this.promotion_commission, this.distribution_fee, this.motion_integral, this.rank_of_head_of_regiment, region_json)
+						if(res.status === 201) {
+							this.$message({
+								type: 'success',
+								message: '提交成功!'
+							})
+						}
+					} catch(err) {
+						console.log(err)
+					}
+				}
+			}
+		}
+	}
+</script>
+<style>
+	.dad-container .dad {
+		background: #f0f0f0;
+		font-size: 62.5%;
+		padding: 20px 0;
+	}
+	/*第一个模板*/
+
+	.dad-container .dad_one {
+		width: 90%;
+		/*height: 428px;*/
+		background: white;
+		margin: 40px auto 0;
+		position: relative;
+	}
+	/*第一行*/
+
+	.dad-container .one {
+		display: flex;
+		flex-direction: row;
+		padding-top: 30px;
+		width: 100%;
+		margin-left: 8%;
+		font-size: 14px;
+	}
+
+	.dad-container .one_city {
+		margin-right: 30px;
+	}
+	/*第二行*/
+
+	.dad-container .two {
+		margin-left: 10%;
+		margin-top: 1.875em;
+		font-size: 14px;
+	}
+
+	.dad-container .two_se {
+		margin-right: 15px;
+	}
+
+	.dad-container .se_r {
+		margin-right: 20px;
+	}
+
+	.dad-container .stra {
+		font-size: 12px;
+		color: #99a9bf;
+		margin-left: 15%;
+		margin-top: 1em;
+		/*position: absolute;*/
+		/*top: 137px;*/
+		/*left:230px;*/
+	}
+
+	.dad-container .anniu {
+		margin-left: 20px;
+	}
+	/*第三行*/
+
+	.dad-container .three {
+		width: 70%;
+		margin-left: 10%;
+		margin-top: 30px;
+		padding-bottom: 20px;
+	}
+	/*第一个模块结束*/
+	/*第二个模块*/
+
+	.dad-container .dad_two {
+		width: 43%;
+		background: white;
+		margin-top: 3em;
+		margin-left: 10px;
+		height: auto;
+		top: 0;
+		padding-bottom:30px;
+	}
+
+	.dad-container .two_row {
+		padding: 6% 0px 0 8%;
+		display: flex;
+		flex-direction: row;
+	}
+
+	.dad-container .row_l {
+		width: 150px;
+		height: 40px;
+		text-align: right;
+		padding-right: 10px;
+		line-height: 40px;
+	}
+
+	.dad-container .global_other {
+		width: 250px;
+		;
+	}
+
+	.dad-container .sel_in {
+		width: 250px;
+	}
+	/*第二个模块结束*/
+	/*第三个模块*/
+
+	.dad-container .dad_three {
+		width: 43%;
+		background: white;
+		margin-top: 30px;
+		margin-left: 3.5%;
+	}
+
+	.dad-container .three_row {
+		padding: 20px 0px 0 89px;
+		/*display: flex;*/
+		/*flex-direction: row;*/
+	}
+
+	.dad-container .three_l {
+		float: left;
+		width: 150px;
+		height: 40px;
+		text-align: right;
+		padding-right: 10px;
+		line-height: 40px;
+	}
+
+	.dad-container .three_2 {
+		width: 250px;
+		float: left;
+		height: 40px;
+		line-height: 40px;
+	}
+
+	.dad-container .row_row {
+		width: 100%;
+		height: 50px;
+	}
+
+	.dad-container .global_word {
+		font-size: 10px;
+		margin-left: 150px;
+		color: #c9c9c9;
+	}
+	/*第三个模块结束*/
+	/*清除浮动样式*/
+
+	.dad-container .clear {
+		clear: both;
+	}
+	/*清除浮动样式结束*/
+	/*按钮*/
+
+	.dad-container .global_btn {
+		width: 100%;
+		height: 50px;
+		margin: 20px;
+		/*text-align: center;*/
+		/*display: block;*/
+	}
+
+	.dad-container .bbb {
+		width: 240px;
+		height: 50px;
+		margin-left: 41%;
+	}
+	/*按钮结束*/
+
+	.dad-container .all {
+		width: 100%;
+		height: 100%;
+		display: flex;
+		flex-direction: row;
+		margin-left: 5%;
+	}
+	/* 隐藏 */
+
+	.isshow {}
+
+	.ishiden {
+		display: none;
+	}
+
+	.one {
+		padding-bottom: 20px;
+	}
+</style>

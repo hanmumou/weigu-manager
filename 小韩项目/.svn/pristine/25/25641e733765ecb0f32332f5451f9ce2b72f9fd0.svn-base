@@ -1,0 +1,340 @@
+<template>
+  <div class="spec_add">
+    <div class="spec_add_top">
+      <div v-for="(item, index) in specList" :key="index" class="form_box">
+        <el-form ref="specList" :model="specList" :label-position="right" label-width="120px">
+          <el-form-item label="编辑名称：" prop="name">
+            <el-input v-model="specList[index].name" placeholder="例如：重量"/>
+          </el-form-item>
+          <el-form-item label prop="items">
+            <el-input v-model="myItem" placeholder="例如：5斤装" class="ipt"/>
+            <div class="add" @click="typeClick(index)">+添加</div>
+            <div v-for="(itemr, i) in specList[index].items" :key="i" class="dis-inline">
+              <span class="squre">
+                {{ itemr }}
+                <i class="el-icon-circle-close-outline" @click="deleteName(i,index,itemr)"/>
+              </span>
+            </div>
+          </el-form-item>
+          <el-form-item>
+            <el-button type="primary" class="addSepc" @click="addSepc(index)">+ 创建规格</el-button>
+          </el-form-item>
+        </el-form>
+      </div>
+    </div>
+    <el-table :data="tableData" :span-method="objectSpanMethod" class="tb-edit" style="width: 50%" border>
+      <template v-for="(col, index) in cols">
+        <el-table-column :prop="col.prop" :label="col.label" :key="index" align="center">
+          <template slot-scope="scope">
+            <div v-if="index==0"><span>{{ scope.row.names }}</span></div>
+            <div v-if="index==1 && cols.length>3"><span>{{ scope.row.fenleis }}</span></div>
+            <div v-if="index==2 && cols.length>4"><span>{{ scope.row.sanjis }}</span></div>
+            <div v-if="index==cols.length-2"><el-input v-model="price[scope.$index]" size="small" @change="stockChange(scope.$index,price[scope.$index])"/></div>
+            <div v-if="index==cols.length-1"><el-input v-model="stock[scope.$index]" size="small" @change="iptChange(scope.$index,stock[scope.$index])"/></div>
+          </template>
+        </el-table-column>
+      </template>
+    </el-table>
+    <el-button type="primary" class="submit" @click="onSubmit()">确认提交</el-button>
+  </div>
+</template>
+<script>
+import { addStock, addGoods, getSku } from '@/api/exportgoods'
+export default {
+  data() {
+    return {
+      title1: '',
+      title2: '内存',
+      title3: '存储',
+      specList: [
+        {
+          name: '',
+          items: []
+        }
+      ],
+      myItem: '',
+      cols: [], // 标题数组
+      tableData: [],
+      provinceArr: [], // 一级要合并数组 [2,0,1,3,0,0] 代表第一二行合并,第三行不变,第四五六行合并,0代表原本的那一行被合并,因此这个列被消除
+      provincePos: 0, // 一级要合并数组内容的序号
+      cityArr: [], // 同上 二级
+      cityPos: 0,
+      goodsForm: {
+        category_id: this.$route.params.category_id,
+        show_region_type: this.$route.params.show_region_type,
+        show_region: this.$route.params.show_region,
+        name: this.$route.params.name,
+        introduce: this.$route.params.introduce,
+        main_picture: this.$route.params.main_picture,
+        detail_picture: this.$route.params.detail_picture,
+        video_url: this.$route.params.video_url,
+        price: this.$route.params.price,
+        original_price: this.$route.params.original_price,
+        cost_price: this.$route.params.cost_price,
+        goods_sku_status: this.$route.params.goods_sku_status,
+        goods_sku: this.$route.params.goods_sku,
+        start_at: this.$route.params.start_at,
+        end_at: this.$route.params.end_at,
+        delivery_at: this.$route.params.delivery_at,
+        goods_limit_stock: this.$route.params.goods_limit_stock,
+        commission: this.$route.params.commission,
+        goods_type: this.$route.params.goods_type,
+        details: this.$route.params.details
+      },
+      array: [],
+      price: [],
+      stock: [],
+      stockList: [],
+      data: []
+    }
+  },
+  methods: {
+    priceChange(index, value) {
+      this.price[index] = value
+    },
+    stockChange(index, value) {
+      this.stock[index] = value
+    },
+    async onSubmit() {
+      // 提交库存
+      this.goodsForm.goods_sku = JSON.stringify(this.data)
+      try {
+        await addGoods(this.goodsForm).then(res => {
+          getSku(res.data.id).then(res => {
+            for (var i = 0; i < res.data.length; i++) {
+              const obj = {}
+              obj['id'] = res.data[i].id
+              obj['price'] = this.price[i]
+              obj['stock'] = this.stock[i]
+              this.stockList[i] = obj
+            }
+            addStock(JSON.stringify(this.stockList))
+          })
+        })
+      } catch (err) {
+        console.log(err)
+      }
+    },
+    typeClick(index) {
+      // 保存输入项后清空
+      this.specList[index].items.push(this.myItem)
+      this.myItem = ''
+    },
+    addSepc(index) {
+      // 添加内容
+      if (index === 0 && this.cols.length < 5) {
+        // 添加标题
+        this.cols.push({
+          label: this.specList[index].name,
+          prop: 'names'
+        }, {
+          label: '团购价',
+          prop: 'price'
+        }, {
+          label: '库存',
+          prop: 'stock'
+        })
+        const detailArr = []
+        for (var i = 0; i < this.specList[index].items.length; i++) {
+          this.tableData.push({ names: this.specList[index].items[i] })
+          detailArr.push({ 'name': this.specList[index].items[i] })
+        }
+        this.data.push({ 'type': this.specList[index].name, 'detail': detailArr })
+      }
+      // 添加第二列内容
+      if (index === 1 && this.cols.length < 5) {
+        // 如果第二类是1个，第一列是一个或多个
+        if (this.specList[index].items.length === 1) {
+          for (var h = 0; h < this.tableData.length; h++) {
+            this.tableData = [{ names: this.tableData[h]['names'], fenleis: this.specList[index].items[0] }]
+          }
+          this.data.push({ 'type': this.specList[index].name, 'detail': this.specList[index].items[0] })
+        } else {
+          var arr = []
+          const detailArr = []
+          for (var m = 0; m < this.tableData.length; m++) {
+            for (var n = 0; n < this.specList[index].items.length; n++) {
+              arr.push({ names: this.tableData[m]['names'], fenleis: this.specList[index].items[n] })
+            }
+          }
+          this.specList[index].items.forEach(function(val) {
+            detailArr.push({ 'name': val })
+          }, this)
+          this.tableData = arr
+          this.data.push({ 'type': this.specList[index].name, 'detail': detailArr })
+        }
+        this.cols.splice(1, 0, {
+          label: this.specList[index].name,
+          prop: 'fenleis'
+        })
+      }
+      // 添加第三列内容
+      if (index === 2 && this.cols.length < 5) {
+        this.cols.splice(2, 0, {
+          label: this.specList[index].name,
+          prop: 'sanjis'
+        })
+        // 如果第三列是一个
+        if (this.specList[index].items.length === 1) {
+          for (var q = 0; q < this.tableData.length; q++) {
+            this.tableData[q]['sanjis'] = this.specList[index].items[0]
+          }
+          this.data.push({ 'type': this.specList[index].name, 'detail': this.specList[index].items[0] })
+        } else {
+          // 如果第三列是多个
+          var arry = []
+          for (var l = 0; l < this.tableData.length; l++) {
+            for (var p = 0; p < this.specList[index].items.length; p++) {
+              arry.push({ names: this.tableData[l]['names'], fenleis: this.tableData[l]['fenleis'], sanjis: this.specList[index].items[p] })
+            }
+          }
+          this.tableData = arry
+          const detailArr = []
+          this.specList[index].items.forEach(function(val) {
+            detailArr.push({ 'name': val })
+          }, this)
+          this.data.push({ 'type': this.specList[index].name, 'detail': detailArr })
+        }
+      }
+      this.hebing()
+      // 如果是第三个就不增加输入框
+      if (this.specList.length === 3) {
+        return
+      } else {
+        this.specList.push({
+          name: '',
+          items: []
+        })
+      }
+    },
+    hebing() {
+      // 合并单元格
+      this.merageInit()
+      for (var t = 0; t < this.tableData.length; t++) {
+        if (t === 0) {
+          this.provinceArr.push(1)
+          this.provincePos = 0
+          this.cityArr.push(1)
+          this.cityPos = 0
+        } else {
+          // 第一
+          if (this.tableData[t]['names'] === this.tableData[t - 1]['names']) {
+            this.provinceArr[this.provincePos] += 1
+            this.provinceArr.push(0)
+          } else {
+            this.provinceArr.push(1)
+            this.provincePos = t
+          }
+          // 第二
+          if (this.tableData[t]['fenleis'] === this.tableData[t - 1]['fenleis'] && this.tableData[t]['names'] === this.tableData[t - 1]['names']) {
+            this.cityArr[this.cityPos] += 1
+            this.cityArr.push(0)
+          } else {
+            this.cityArr.push(1)
+            this.cityPos = t
+          }
+        }
+      }
+    },
+    // 删除某一项
+    deleteName(i, index, itemr) {
+      this.specList[index].items.splice(i, 1)
+      var num = []
+      this.tableData.forEach(function(value, w) {
+        for (var i in value) {
+          console.log(value[i])
+          if (value[i] === itemr) {
+            num.push(w)
+          }
+        }
+      }, this)
+      for (var jj = 0; jj < num.length; jj++) {
+        this.tableData.splice(num[jj] - jj, 1)
+        this.price.splice(num[jj] - jj, 1)
+        this.stock.splice(num[jj] - jj, 1)
+      }
+      this.hebing()
+    },
+    objectSpanMethod({ row, column, rowIndex, columnIndex }) {
+      if (columnIndex === 0) {
+        // 第一列的合并方法
+        const _row_1 = this.provinceArr[rowIndex]
+        const _col_1 = _row_1 > 0 ? 1 : 0
+        return {
+          rowspan: _row_1,
+          colspan: _col_1
+        }
+      } else if (columnIndex === 1) {
+        // 第二列的合并方法
+        const _row_2 = this.cityArr[rowIndex]
+        const _col_2 = _row_2 > 0 ? 1 : 0
+        return {
+          rowspan: _row_2,
+          colspan: _col_2
+        }
+      }
+    },
+    merageInit() {
+      // 初始化合并行的数组
+      this.provinceArr = []
+      this.provincePos = 0
+      this.cityArr = []
+      this.cityPos = 0
+    }
+  }
+}
+</script>
+<style scoped>
+.spec_add {
+  width: 100%;
+  height: 100%;
+  font-size: 14px;
+  padding: 40px 0 0 60px;
+}
+.spec_add_top{
+  display: flex;
+  align-items: flex-start;
+}
+.form_box {
+  width: 30%;
+  display: inline-block;
+}
+.spec_add .form_box .el-form{
+  height: 100%;
+}
+.ipt {
+  width: 80%;
+}
+.add {
+  font-size: 1em;
+  color: #00b4ff;
+  display: inline-block;
+  cursor: pointer;
+  width: 10%;
+}
+.addSepc {
+  /* width: 32em; */
+  height: 2.75em;
+  border: 1px solid #00b4ff;
+  color: #00b4ff;
+  background-color: #ffffff;
+}
+.submit {
+  margin-top: 3em;
+}
+.squre {
+  display: inline-block;
+  min-width: 6em;
+  height: 2em;
+  line-height: 2em;
+  text-align: center;
+  border-radius: 2em;
+  border: 1px solid #999999;
+}
+.spec_add .squre i {
+  margin-left: 0.5em;
+}
+.dis-inline {
+  display: inline;
+}
+</style>

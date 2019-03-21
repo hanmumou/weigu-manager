@@ -1,0 +1,74 @@
+//压面总体布局
+.sales-continer{
+  padding-top: 61px;
+}
+//城市查询
+.sales-continer .sales .el-select{
+  width:100%;
+  margin-top:40px;
+}
+//数据分析销售列表
+.sales-continer .sales{
+  width:100%;
+  height:220px;
+  padding: 20px 40px;
+  box-shadow: 0 0 10px #ccc;
+}
+//数据分析销售选择
+.sales-continer .salesAll .sales .sale-select{
+  width:100%;
+  height:80px;
+  box-sizing: border-box;
+  border: 1px solid #DEDEDE;
+}
+.sales-continer .salesAll .sales .sale-select:nth-child(2){
+  margin-top:20px;
+}
+//数据分析销售选择图片样式
+.sales-continer .salesAll .sale-select img{
+  width:78px;
+  float: left;
+}
+//数据分析布局总体样式
+.sales-continer .el-col{
+  box-sizing: border-box;
+  padding:0 1.2%;
+}
+//图表整体样式
+.sales-continer .chartrow{
+  margin-top:43px;
+}
+
+//图表布局容器样式
+.sales-continer .chartrow .el-container{
+  border-radius: 5px 5px 0 0;
+  border:1px solid #979797;
+}
+.sales-continer .SalesEcharts .el-container{
+  border:1px solid #979797;
+}
+//图表容器头部设定
+.sales-continer .chartrow .el-header{
+  border-radius:5px 5px 0 0;
+}
+//分割线整体布局样式
+.sales-continer .hr-container{
+  padding: 0 1.2%;
+  margin:12px 0 34px;
+}
+//分割线整体样式
+.sales-continer .hr-container .hr{
+  padding: 0 1.2%;
+  height: 11px;
+  border: 1px solid #D8D8D8;
+  background: #979797;
+}
+//排行容器样式
+.sales-continer .ranList .el-container{
+  border-radius: 8px 8px 0 0;
+  border:1px solid #DEDEDE;
+}
+//排行容器头部样式
+.sales-continer .ranList .el-header{
+  border-radius:8px 8px 0 0;
+}

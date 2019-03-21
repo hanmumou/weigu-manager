@@ -151,9 +151,9 @@ import {getVipList, editVip} from '@/api/valueviplist'
 export default {
   data() {
     return {
-      vipname:'',
-      vipphone:'',
-      dialogFormVisible:false,
+      vipname: '',
+      vipphone: '',
+      dialogFormVisible: false,
       tableData: [],
       multipleSelection: [],
       total: 0, // 获取列表数据的长度
@@ -161,40 +161,40 @@ export default {
       currentPage: 1 // 默认开始页面
     }
   },
-  mounted(){
+  mounted() {
     this.getviplist()
   },
   methods: {
-    //会员列表删除会员
-    async deleteVip(){
+    // 会员列表删除会员
+    async deleteVip() {
 
     },
-    //会员列表  改变启用 禁用
-    changeStatus:function(row){
+    // 会员列表  改变启用 禁用
+    changeStatus: function(row) {
 
     },
-    //会员列表  修改姓名 手机号
-    async subVipEdit(row){
+    // 会员列表  修改姓名 手机号
+    async subVipEdit(row) {
       let id = row.id
       let username = this.vipname
       let phone = this.vipphone
-      await editVip(id,username,phone).then(res=>{
-          //渲染列表
+      await editVip(id, username, phone).then(res => {
+        // 渲染列表
         this.getviplist()
         this.$message('修改成功')
       })
     },
-    //编辑会员列表
-    editVip:function(row){
+    // 编辑会员列表
+    editVip: function(row) {
       this.dialogFormVisible = true
-      this.vipname= row.username
+      this.vipname = row.username
       this.vipphone = row.phone
     },
-    //默认获取会员列表信息
-    async getviplist(){
-       await getVipList().then(res=>{
-          this.tableData = res.data
-       })
+    // 默认获取会员列表信息
+    async getviplist() {
+      await getVipList().then(res => {
+        this.tableData = res.data
+      })
     },
     // currentpage改变时会触发
     current_change: function(currentPage) {

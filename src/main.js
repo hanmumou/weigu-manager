@@ -28,8 +28,8 @@ Vue.use(quillEditor)
 
 Vue.use(ElementUI, { locale })
 
-//父组件  子组件传值的中间空实例
-export var bus=new Vue()
+// 父组件 子组件传值的中间空实例
+export var bus = new Vue()
 
 Vue.config.productionTip = false
 // 使用vuex

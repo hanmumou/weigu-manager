@@ -44,7 +44,7 @@ export const delGoods = (goods_id_json) => post('api/goods/goods-delete', {
   goods_id_json
 })
 
-//根据商品id获取该商品规格笛卡尔积   调的是商品属性笛卡尔积接口
-export const getSkuById = (id)=>GET('api/goods/sku/cartesian-product/'+id)
-//商品有规格时   修改商品团购价及库存 且提交该商品规格的笛卡尔积接口
-export const editPriceStock = (data)=>post('api/goods/sku/stock',{data})
+// 根据商品id获取该商品规格笛卡尔积   调的是商品属性笛卡尔积接口
+export const getSkuById = (id) => GET('api/goods/sku/cartesian-product/' + id)
+// 商品有规格时   修改商品团购价及库存 且提交该商品规格的笛卡尔积接口
+export const editPriceStock = (data) => post('api/goods/sku/stock', { data })

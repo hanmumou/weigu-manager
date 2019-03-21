@@ -13,7 +13,7 @@ axios.defaults.isRetryRequest = false
 axios.interceptors.request.use(
   config => {
     config.headers['Content-Type'] = 'application/x-www-form-urlencoded;charset=UTF-8'
-    if (store.getters.token) {//如果token存在
+    if (store.getters.token) { // 如果token存在
       config.headers['Authorization'] = `Bearer ${getToken()}` // 让每个请求携带自定义token 请根据实际情况自行修改
     }
     if (config.method === 'post') {
@@ -49,20 +49,21 @@ axios.interceptors.response.use(
         // return false
       }
       // 错误信息接口除token以外加入弹窗信息
-//    if (error.response.data.message !== 'Unauthenticated.') {
-//      var messageString = ''
-//      for (const i in error.response.data.errors) {
-//        messageString += error.response.data.errors[i]
-//      }
-//      Message({
-//        type: 'info',
-//        message: `${messageString}`
-//      })
-//      messageString = ''
-//    }
+      // if (error.response.data.message !== 'Unauthenticated.') {
+      //   var messageString = ''
+      //   for (const i in error.response.data.errors) {
+      //     messageString += error.response.data.errors[i]
+      //   }
+      //   Message({
+      //     type: 'info',
+      //     message: `${messageString}`
+      //   })
+      //   messageString = ''
+      // }
     }
     return Promise.reject(error)
   })
+
 // 请求刷新token 方法
 function getRefreshToken() {
   axios.put(baseUrl + 'api/admin/authorizations/current').then(res => {
@@ -113,6 +114,7 @@ export const delate = (url, data) => {
     })
   })
 }
+
 // 小程序绑定接口走这个
 export const postapp = (url, data) => {
   return new Promise((resolve, reject) => {
@@ -130,6 +132,16 @@ export const GETapp = (url, data = {}) => {
       params: data
     }).then(res => {
       resolve(res.data)
+    }).catch(err => {
+      reject(err)
+    })
+  })
+}
+
+export const put = (url, data) => {
+  return new Promise((resolve, reject) => {
+    axios.put(baseUrl + url, data).then(res => {
+      resolve(res)
     }).catch(err => {
       reject(err)
     })

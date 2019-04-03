@@ -386,31 +386,30 @@ export default {
     },
     // 提交
     async onSubmit(val) {
-      val.start_at = this.start_date + ' '+ this.start_at_time + ':00'
-      val.end_at = this.end_date + ' '+ this.end_at_time + ':00'
-      if(this.delivery_date && this.delivery_at_time ){
-        val.delivery_at =this.delivery_date +' '+ this.delivery_at_time + ':00'
+      val.start_at = this.start_date + ' ' + this.start_at_time + ':00'
+      val.end_at = this.end_date + ' ' + this.end_at_time + ':00'
+      if (this.delivery_date && this.delivery_at_time) {
+        val.delivery_at = this.delivery_date + ' ' + this.delivery_at_time + ':00'
       }
-      val.detail_picture = JSON.stringify(this.dialogImageUrl)
+      val.detail_picture = Object.prototype.toString.apply(val.detail_picture) === '[object String]' ? val.detail_picture : JSON.stringify(this.dialogImageUrl)
       val.details = this.content
       val.goods_sku_status = this.spec
-      //val.cost_price = 10
-      //多选的城市 格式处理
-      if (this.province_id == '1') {
-        val.address_ids = ''
-      }else if(val.address_ids){
-        //val.address_ids = JSON.stringify(val.address_ids)
+      // val.cost_price = 10
+      // 多选的城市 格式处理
+      if (this.province_id) {
+        val.address_ids = []
       }
-      //团长格式处理
-      if(this.commander.includes('all')){ //返回true  or false
-         //选择了全部
+      val.address_ids = Object.prototype.toString.apply(val.address_ids) === '[object Array]' ? JSON.stringify(val.address_ids) : val.address_ids
+      // 团长格式处理
+      if (this.commander.includes('all')) { // 返回true  or false
+        // 选择了全部
         val.regimental_ids = ''
-      }else{
+      } else {
         val.regimental_ids = JSON.stringify(this.commander)
       }
-      if (this.spec == '0') {//无规格
-        //发布商品
-        if(!this.$route.query.id){
+      if (this.spec == '0') { // 无规格
+        // 发布商品
+        if (!this.$route.query.id) {
           try {
             await addGoods(val)
             this.goodsForm.start_at = ''
@@ -423,22 +422,23 @@ export default {
           } catch (err) {
             console.log(err)
           }
-        }else if(this.$route.query.id){
-           //重新编辑商品
-          try{
-             await editGoods(this.$route.query.id,val.category_id,val.name,val.introduce,val.main_picture,val.detail_picture,val.video_url,val.price,val.original_price,val.cost_price,val.goods_sku_status,
-               val.start_at,val.end_at,val.delivery_at,val.goods_limit_stock,val.stock,val.commission,val.commander_leader_commission,val.goods_type,val.details,
-               val.address_ids,val.regimental_ids).then(res=>{
-               this.goodsForm.start_at = ''
-               this.goodsForm.end_at = ''
-               this.goodsForm.delivery_at = ''
-               this.$message({
-                 message: '商品修改成功',
-                 type: 'success'
-               })
-             })
-          }catch(err){
-             console.log(err)
+        } else if (this.$route.query.id) {
+          // 重新编辑商品
+          try {
+            await editGoods(
+              this.$route.query.id, val.category_id, val.name, val.introduce, val.main_picture, val.detail_picture, val.video_url, val.price, val.original_price, val.cost_price,
+              val.goods_sku_status, val.start_at, val.end_at, val.delivery_at, val.goods_limit_stock, val.stock, val.commission, val.commander_leader_commission, val.goods_type,
+              val.details, val.address_ids, val.regimental_ids).then(res => {
+              this.goodsForm.start_at = ''
+              this.goodsForm.end_at = ''
+              this.goodsForm.delivery_at = ''
+              this.$message({
+                message: '商品修改成功',
+                type: 'success'
+              })
+            })
+          } catch (err) {
+            console.log(err)
           }
         }
       } else {

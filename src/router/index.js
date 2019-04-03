@@ -180,12 +180,12 @@ export const constantRouterMap = [
         name: 'goodslist',
         meta: { title: '商品列表' }
       }
-//    {
-//      path: '/goodsmanage/goodshow',
-//      component: () => import('@/views/goodsmanage/goodshow/index'),
-//      name: 'goodshow',
-//      meta: { title: '商品展示区域' }
-//    }
+      //    {
+      //      path: '/goodsmanage/goodshow',
+      //      component: () => import('@/views/goodsmanage/goodshow/index'),
+      //      name: 'goodshow',
+      //      meta: { title: '商品展示区域' }
+      //    }
     ]
   },
   {

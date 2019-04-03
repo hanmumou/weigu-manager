@@ -157,3 +157,15 @@ export const GetApp = (url, data = {}, config = {}) => {
     })
   })
 }
+
+export const put = (url, data, config = {}) => {
+  return new Promise((resolve, reject) => {
+    axios.put(url, data, config)
+      .then(res => {
+        resolve(res)
+      })
+      .catch(err => {
+        reject(err)
+      })
+  })
+}

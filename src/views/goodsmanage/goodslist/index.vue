@@ -277,7 +277,6 @@
 		},
 		created:function(){
 			bus.$on('clearGoods',(sel)=>{
-					console.log(sel)
 					this.sels=sel
 		    })
 		},
@@ -296,7 +295,6 @@
 					this.goods_status = 1
 				} else if(tab.name == 'second') {
 					this.goods_status = 2
-					console.log(this.advanceSale)
 				} else if(tab.name == 'three') {
 					this.goods_status = 0
 				}
@@ -305,30 +303,47 @@
 						'goods_status': this.goods_status
 					})
 					if(this.goods_status == 1) {
-            for(let i = 0; i<res.data.length;i++){
-              if(res.data[i].show_region.length && res.data[i].show_region_type == 0 &&res.data[i].show_region_province&&res.data[i].show_region_city ){
-                console.log(1111)
-                res.data[i].show_region = res.data[i].show_region_province[0] + res.data[i].show_region_city[0]
+            for(let i=0;i<res.data.length;i++){
+              var areaStr = ''
+              var comStr = ''
+              for(let akey in res.data[i].goods_show_region){
+                areaStr += res.data[i].goods_show_region[akey] + ','
               }
+              for(let ckey in res.data[i].goods_show_commander){
+                comStr += res.data[i].goods_show_commander[ckey] + ','
+              }
+              res.data[i].goods_show_region = areaStr
+              res.data[i].goods_show_commander = comStr
             }
 						this.notShevelsGoods = res.data
 					} else if(this.goods_status == 2) {
-            for(let i = 0; i<res.data.length;i++){
-              if(res.data[i].show_region.length && res.data[i].show_region_type == 0 &&res.data[i].show_region_province&&res.data[i].show_region_city ){
-                console.log(1111)
-                res.data[i].show_region = res.data[i].show_region_province[0] + res.data[i].show_region_city[0]
+            for(let i=0;i<res.data.length;i++){
+              var areaStr = ''
+              var comStr = ''
+              for(let akey in res.data[i].goods_show_region){
+                areaStr += res.data[i].goods_show_region[akey] + ','
               }
+              for(let ckey in res.data[i].goods_show_commander){
+                comStr += res.data[i].goods_show_commander[ckey] + ','
+              }
+              res.data[i].goods_show_region = areaStr
+              res.data[i].goods_show_commander = comStr
             }
 						this.advanceSale = res.data
 					} else if(this.goods_status == 0) {
-            for(let i = 0; i<res.data.length;i++){
-              if(res.data[i].show_region.length && res.data[i].show_region_type == 0 &&res.data[i].show_region_province&&res.data[i].show_region_city ){
-                console.log(1111)
-                res.data[i].show_region = res.data[i].show_region_province[0] + res.data[i].show_region_city[0]
+            for(let i=0;i<res.data.length;i++){
+              var areaStr = ''
+              var comStr = ''
+              for(let akey in res.data[i].goods_show_region){
+                areaStr += res.data[i].goods_show_region[akey] + ','
               }
+              for(let ckey in res.data[i].goods_show_commander){
+                comStr += res.data[i].goods_show_commander[ckey] + ','
+              }
+              res.data[i].goods_show_region = areaStr
+              res.data[i].goods_show_commander = comStr
             }
 						this.onShelvesGoods = res.data
-            console.log(this.onShelvesGoods)
 					}
 				} catch(err) {
 					console.log(err)
@@ -408,7 +423,7 @@
 					console.log(err)
 				}
 			},
-			// 接受子组件参数   在子组件中删除表格中的一行商品
+			// 接受子组件参数   在子组件中删除表格中的一行商品  修改表格中的商品
 			async headCall(msg) { // 回调方法，接收子组件传的参数
 				//重新渲染页面
 				if(this.tabs) {
@@ -428,27 +443,45 @@
 						'goods_status': this.goods_status
 					})
 					if(this.goods_status == 1) {
-            for(let i = 0; i<res.data.length;i++){
-              if(res.data[i].show_region.length && res.data[i].show_region_type == 0 &&res.data[i].show_region_province&&res.data[i].show_region_city ){
-                console.log(1111)
-                res.data[i].show_region = res.data[i].show_region_province[0] + res.data[i].show_region_city[0]
+            for(let i=0;i<res.data.length;i++){
+              var areaStr = ''
+              var comStr = ''
+              for(let akey in res.data[i].goods_show_region){
+                areaStr += res.data[i].goods_show_region[akey] + ','
               }
+              for(let ckey in res.data[i].goods_show_commander){
+                comStr += res.data[i].goods_show_commander[ckey] + ','
+              }
+              res.data[i].goods_show_region = areaStr
+              res.data[i].goods_show_commander = comStr
             }
 						this.notShevelsGoods = res.data
 					} else if(this.goods_status == 2) {
-            for(let i = 0; i<res.data.length;i++){
-              if(res.data[i].show_region.length && res.data[i].show_region_type == 0 &&res.data[i].show_region_province&&res.data[i].show_region_city ){
-                console.log(1111)
-                res.data[i].show_region = res.data[i].show_region_province[0] + res.data[i].show_region_city[0]
+            for(let i=0;i<res.data.length;i++){
+              var areaStr = ''
+              var comStr = ''
+              for(let akey in res.data[i].goods_show_region){
+                areaStr += res.data[i].goods_show_region[akey] + ','
               }
+              for(let ckey in res.data[i].goods_show_commander){
+                comStr += res.data[i].goods_show_commander[ckey] + ','
+              }
+              res.data[i].goods_show_region = areaStr
+              res.data[i].goods_show_commander = comStr
             }
 						this.advanceSale = res.data
 					} else if(this.goods_status == 0) {
-            for(let i = 0; i<res.data.length;i++){
-              if(res.data[i].show_region.length && res.data[i].show_region_type == 0 && res.data[i].show_region_province && res.data[i].show_region_city ){
-                console.log(1111)
-                res.data[i].show_region = res.data[i].show_region_province[0] + res.data[i].show_region_city[0]
+            for(let i=0;i<res.data.length;i++){
+              var areaStr = ''
+              var comStr = ''
+              for(let akey in res.data[i].goods_show_region){
+                areaStr += res.data[i].goods_show_region[akey] + ','
               }
+              for(let ckey in res.data[i].goods_show_commander){
+                comStr += res.data[i].goods_show_commander[ckey] + ','
+              }
+              res.data[i].goods_show_region = areaStr
+              res.data[i].goods_show_commander = comStr
             }
 						this.onShelvesGoods = res.data
 					}
@@ -507,11 +540,17 @@
 					await getGoodsList(this.currentPage, {
 						'goods_status': this.goods_status
 					}).then(res=>{
-            for(let i = 0; i<res.data.length;i++){
-              if(res.data[i].show_region.length && res.data[i].show_region_type == 0 &&res.data[i].show_region_province&&res.data[i].show_region_city ){
-                console.log(1111)
-                res.data[i].show_region = res.data[i].show_region_province[0] + res.data[i].show_region_city[0]
+            for(let i=0;i<res.data.length;i++){
+              var areaStr = ''
+              var comStr = ''
+              for(let akey in res.data[i].goods_show_region){
+                areaStr += res.data[i].goods_show_region[akey] + ','
               }
+              for(let ckey in res.data[i].goods_show_commander){
+                comStr += res.data[i].goods_show_commander[ckey] + ','
+              }
+              res.data[i].goods_show_region = areaStr
+              res.data[i].goods_show_commander = comStr
             }
             this.notShevelsGoods = res.data
             this.pagesize = res.meta.pagination.per_page

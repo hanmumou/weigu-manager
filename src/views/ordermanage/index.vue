@@ -472,7 +472,6 @@
 						}
 					}
 					ids = JSON.stringify(ids)
-					console.log(this.tableData)
 					window.location.href = "https://community.suokekj.com/api/orders/export?order_ids=" + ids
 				}
 				this.EscChecked()

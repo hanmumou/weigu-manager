@@ -18,5 +18,13 @@ export const getGoodsByCon = (goods_id, start_at, end_at, province_id, city_id) 
 +goods_id+'&start_at='+start_at+'&end_at='+end_at+'&province_id='+province_id+'&area_id='
 )
 
-//获取取货点销售汇总信息
-export const getAddSale = () =>GET('api/delivery-goods-location/sales/summary?commader_id=&start_at=&end_at=&province_id=&city_id=&area_id')
+//获取取货点汇总列表
+export const getAddSale = () =>GET('api/delivery-goods-location/sales/summary')
+
+//根据条件查询取货点汇总列表
+export const getPickupList= (commander_id,start_at,end_at,province_id,city_id,goods_id) =>GET('api/delivery-goods-location/sales/summary?commander_id=' +
+  commander_id + '&start_at=' + start_at +
+  '&province_id=' + province_id +
+  '&city_id=' + city_id +
+  '&goods_id=' + goods_id
+)

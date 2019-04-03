@@ -5,7 +5,7 @@
       <!-- 团长列表的搜索和导出 -->
       <div class="seaAndExp">
         <el-button @click="toggleSelection(coloneList)">全选</el-button>
-        <el-button type="primary">导出团长列表</el-button>
+        <el-button type="primary" @click="exportClonList">导出团长列表</el-button>
         <el-form ref="coloneForm" :inline="true" :model="coloneForm" style="margin-top:10px;">
           <!--省市选择-->
           <el-form-item label="所在区域：">
@@ -43,7 +43,7 @@
       </div>
       <!-- 数据表格 -->
       <el-table id="#exportexcel" ref="multipleTable"
-                :data="coloneList.slice((currentPage-1)*pagesize,currentPage*pagesize)" :xs="20"
+                :data="coloneList" :xs="20"
                 :row-class-name="tableRoWClassName" tooltip-effect="dark" border style="width: 100%">
         <el-table-column type="selection" align="center"/>
         <el-table-column prop="community_user_id" label="团长ID" align="center"/>
@@ -358,6 +358,10 @@
       cancelManage() {
         this.colonelistDialog = false
         this.$message('取消修改')
+      },
+      //导出团长列表
+      exportClonList(){
+        window.location.href = 'https://community.suokekj.com/api/api/regimental-commander/export'
       }
     }
   }

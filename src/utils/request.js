@@ -1,5 +1,5 @@
 import axios from 'axios'
-import { Message } from 'element-ui'
+// import { Message } from 'element-ui'
 import store from '../store'
 import { getToken, setToken } from '@/utils/auth' // 导入token
 import qs from 'qs'
@@ -12,15 +12,26 @@ axios.defaults.isRetryRequest = false
 // request拦截器
 axios.interceptors.request.use(
   config => {
-    config.headers['Content-Type'] = 'application/x-www-form-urlencoded;charset=UTF-8'
-    if (store.getters.token) { // 如果token存在
+    // 设置默认响应内容格式
+    if (!config.headers['Content-Type']) {
+      config.headers['Content-Type'] = 'application/x-www-form-urlencoded;charset=UTF-8'
+    }
+
+    // 如果token存在
+    if (store.getters.token) {
       config.headers['Authorization'] = `Bearer ${getToken()}` // 让每个请求携带自定义token 请根据实际情况自行修改
     }
+
+    // 检测post请求响应数据类型
     if (config.method === 'post') {
-      config.data = qs.stringify({
-        ...config.data
-      })
+      // 内容响应格式非json类型
+      if (!config.headers['Content-Type'].match(/application\/json/i)) {
+        config.data = qs.stringify({
+          ...config.data
+        })
+      }
     }
+
     return config
   },
   error => {
@@ -49,17 +60,17 @@ axios.interceptors.response.use(
         // return false
       }
       // 错误信息接口除token以外加入弹窗信息
-      // if (error.response.data.message !== 'Unauthenticated.') {
-      //   var messageString = ''
-      //   for (const i in error.response.data.errors) {
-      //     messageString += error.response.data.errors[i]
-      //   }
-      //   Message({
-      //     type: 'info',
-      //     message: `${messageString}`
-      //   })
-      //   messageString = ''
-      // }
+      //    if (error.response.data.message !== 'Unauthenticated.') {
+      //      var messageString = ''
+      //      for (const i in error.response.data.errors) {
+      //        messageString += error.response.data.errors[i]
+      //      }
+      //      Message({
+      //        type: 'info',
+      //        message: `${messageString}`
+      //      })
+      //      messageString = ''
+      //    }
     }
     return Promise.reject(error)
   })
@@ -73,9 +84,36 @@ function getRefreshToken() {
   })
 }
 
-export const post = (url, data) => {
+export const post = (url, data, config = {}) => {
   return new Promise((resolve, reject) => {
-    axios.post(baseUrl + url, data).then(res => {
+    axios.post(baseUrl + url, data, config)
+      .then(res => {
+        resolve(res)
+      })
+      .catch(err => {
+        reject(err)
+      })
+  })
+}
+
+export const GET = (url, data = {}, config = {}) => {
+  return new Promise((resolve, reject) => {
+    const ConfigData = config
+    ConfigData.params = data
+
+    axios.get(baseUrl + url, ConfigData)
+      .then(res => {
+        resolve(res.data)
+      })
+      .catch(err => {
+        reject(err)
+      })
+  })
+}
+
+export const patch = (url, data, config = {}) => {
+  return new Promise((resolve, reject) => {
+    axios.patch(`${baseUrl}${url}`, { data }, config).then(res => {
       resolve(res)
     }).catch(err => {
       reject(err)
@@ -83,31 +121,12 @@ export const post = (url, data) => {
   })
 }
 
-export const GET = (url, data = {}) => {
+export const delate = (url, data, config = {}) => {
   return new Promise((resolve, reject) => {
-    axios.get(baseUrl + url, {
-      params: data
-    }).then(res => {
-      resolve(res.data)
-    }).catch(err => {
-      reject(err)
-    })
-  })
-}
+    const ConfigData = config
+    ConfigData.params = data
 
-export const patch = (url, data) => {
-  return new Promise((resolve, reject) => {
-    axios.patch(`${baseUrl}${url}`, { data }).then(res => {
-      resolve(res)
-    }).catch(err => {
-      reject(err)
-    })
-  })
-}
-
-export const delate = (url, data) => {
-  return new Promise((resolve, reject) => {
-    axios.delete(`${baseUrl}${url}`, { params: data }).then(res => {
+    axios.delete(`${baseUrl}${url}`, ConfigData).then(res => {
       resolve(res)
     }).catch(err => {
       reject(err)
@@ -116,9 +135,9 @@ export const delate = (url, data) => {
 }
 
 // 小程序绑定接口走这个
-export const postapp = (url, data) => {
+export const PostApp = (url, data = {}, config = {}) => {
   return new Promise((resolve, reject) => {
-    axios.post(baseUrl_app + url, data).then(res => {
+    axios.post(baseUrl_app + url, data, config).then(res => {
       resolve(res)
     }).catch(err => {
       reject(err)
@@ -126,22 +145,13 @@ export const postapp = (url, data) => {
   })
 }
 
-export const GETapp = (url, data = {}) => {
+export const GetApp = (url, data = {}, config = {}) => {
   return new Promise((resolve, reject) => {
-    axios.get(baseUrl_app + url, {
-      params: data
-    }).then(res => {
+    const ConfigData = config
+    ConfigData.params = data
+
+    axios.get(baseUrl_app + url, ConfigData).then(res => {
       resolve(res.data)
-    }).catch(err => {
-      reject(err)
-    })
-  })
-}
-
-export const put = (url, data) => {
-  return new Promise((resolve, reject) => {
-    axios.put(baseUrl + url, data).then(res => {
-      resolve(res)
     }).catch(err => {
       reject(err)
     })

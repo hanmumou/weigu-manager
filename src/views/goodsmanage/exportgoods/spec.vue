@@ -545,7 +545,7 @@
 									names: '',
 									names2: '',
 									price:'',
-							        stock:''
+                  stock:''
 								}
 								_objs.names = this.tableData[j].names
 								_objs.names2 = this.tableData[j].names3

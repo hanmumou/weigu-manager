@@ -4,6 +4,9 @@
     <div class="route_btn">
       <el-button type="primary" icon="el-icon-circle-plus-outline" @click="addroute();dialogVisible=true">添加线路</el-button>
     </div>
+    <p class="z-text">
+       <span>*</span> 注：可一键导出每条线路下各取货点的已支付订单详情
+    </p>
     <!-- 按钮结束 -->
     <div class="collectmanage-title">
       <div class="collectmanage-content">
@@ -622,17 +625,25 @@ export default{
     //获取商品 名称 列表
     async getGoodsInfo(){
     	try{
-    		 await getGoodsName().then(res => {
-    		 	   this.produce = res.data
-    		 })
-    	}catch(err){
-    		console.log(err)
-    	}
+        await getGoodsName().then(res => {
+          this.produce = res.data
+        })
+      }catch(err){
+        console.log(err)
+      }
     }
   }
 }
 </script>
 <style>
+  /***备注样式***/
+  .z-text{
+    color:#aaaaaa;
+    font-size:14px;
+  }
+  .z-text>span{
+     color:red;
+  }
 /* 顶部按钮 */
 .red{
   background: #FDEEE4;

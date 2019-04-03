@@ -167,7 +167,6 @@ export default {
   data() {
     return {
       formData: {
-        id:'',
         banner_img: '',
         step_number: '',
         integral: '',
@@ -260,6 +259,7 @@ export default {
     },
     // 添加提交
     async subRun(data) {
+      console.log(111)
       const banner_img = data.banner_img
       const every_step_exchange_integral = data.step_number
       const integral = data.integral
@@ -281,7 +281,7 @@ export default {
     },
     // 修改提交
     async updateRun(data) {
-      const id = this.formData.id
+      console.log(222)
       const banner_img = data.banner_img
       const step_number = data.step_number
       const integral = data.integral
@@ -290,7 +290,7 @@ export default {
       const integralList = JSON.stringify(this.formData.integralList)
       const content = this.content
       try {
-         await updatemotorlist(id, banner_img, step_number, integral, is_value_card, is_coupon, integralList, content).then(res=>{
+         await updatemotorlist( banner_img, step_number, integral, is_value_card, is_coupon, integralList, content).then(res=>{
            if (res.status === 201) {
              this.$message({
                message: '修改成功',

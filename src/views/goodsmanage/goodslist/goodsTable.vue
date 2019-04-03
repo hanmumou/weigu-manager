@@ -46,17 +46,8 @@
 		<el-table-column label="产品名称" prop="name" />
 		<el-table-column label="产品分类" prop="category_name[0].name" />
 		<el-table-column label="发布时间" prop="start_at" />
-		<el-table-column label="展示区域" prop="show_region">
-			<template slot-scope="scope">
-				<div v-if="scope.row.show_region_type == 1">
-					<span>全国</span>
-				</div>
-				<div v-if="scope.row.show_region_type == 0">
-					<span>{{scope.row.show_region}}</span>
-				</div>
-			</template>
-		</el-table-column>
-    <el-table-column label="展示团长" prop="" /><!--后来加的展示团长-->
+		<el-table-column label="展示区域" prop="goods_show_region"></el-table-column>
+    <el-table-column label="展示团长" prop="goods_show_commander" /><!--后来加的展示团长-->
 		<el-table-column label="限购数量" prop="goods_limit_stock">
 			<template slot-scope="scope">
 				<el-input v-model="scope.row.goods_limit_stock" class="ipt" />
@@ -64,7 +55,7 @@
 		</el-table-column>
 		<el-table-column label="虚拟销量" prop="virtual_sales_num">
 			<template slot-scope="scope">
-				<el-input v-model="scope.row.virtual_sales_num" class="ipt" />
+				<el-input v-model="scope.row.virtual_sales_num" class="ipt" @change="changeNum(scope.row.id,scope.row.virtual_sales_num)" />
 			</template>
 		</el-table-column>
 		<el-table-column label="排序" prop="sort">
@@ -102,7 +93,7 @@
 	</el-table>
 </template>
 <script>
-	import { changeTj, delGoods, getSpecList, editGoods, getSkuById, editPriceStock } from '@/api/goodslist'
+	import { changeTj, delGoods, getSpecList, editGoods, getSkuById, editPriceStock, updateVirtualNum } from '@/api/goodslist'
 	import {bus} from '@/main.js'
 	export default {
 		name: 'GoodsTable',
@@ -148,11 +139,23 @@
 			async changeIndex(val) {
 				try {
 					await changeTj(val.id)
-					this.$emit('ee')
+          this.$emit('headCallBack', 'ifShow') //子组件向父组件传递数据
+          this.$message.success('修改成功')
 				} catch(err) {
 					console.log(err)
 				}
 			},
+      //更新虚拟销量
+      async changeNum(id,num){
+           try{
+              await updateVirtualNum(id,num ).then(res=>{
+                this.$message.success('修改成功')
+                this.$emit('headCallBack', 'updateVirtaulNum') //子组件向父组件传递数据
+              })
+           }catch(err){
+             console.log(err)
+           }
+      },
 			// 表格合并
 			objectSpanMethod({
 				row,
@@ -241,7 +244,7 @@
 			changeSel(sel) {
 				bus.$emit('clearGoods',sel)
 			},
-			// 提交当前行
+			// 销售记录  开启 关闭
 			async submit(row) {
 				const detail_picture = []
 				var is_sales_record = 0
@@ -263,7 +266,10 @@
 				try {
 					await editGoods(row.id, row.category_id, row.show_region_type, JSON.stringify(show_region), row.name, row.introduce, row.main_picture, JSON.stringify(detail_picture),
 						row.video_url, row.cost_price, row.original_price, row.price, Number(row.goods_sku_status), JSON.stringify(row.goods_sku), row.start_at,
-						row.end_at, row.delivery_at, row.goods_limit_stock, row.commission, row.goods_type, row.details, row.sort, is_sales_record)
+						row.end_at, row.delivery_at, row.goods_limit_stock, row.commission, row.goods_type, row.details, row.sort, is_sales_record).then(res=>{
+						  this.$message.success('修改成功')
+              this.$emit('headCallBack', 'openrecord') //子组件向父组件传递数据
+          })
 				} catch(err) {
 					console.log(err)
 				}

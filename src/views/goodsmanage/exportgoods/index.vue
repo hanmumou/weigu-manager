@@ -63,10 +63,10 @@
           :on-success="addImageSuccess"
           :on-remove="handleRemove"
           :before-upload="addImageBefore"
-          :file-list="dialogImageUrl.image"
+          :file-list="dialogImageUrl"
           action="https://community.suokekj.com/api/images/upload"
           list-type="picture-card">
-          <!-- <img v-if="dialogImageUrl" :src="dialogImageUrl" class="avatars" > -->
+          <!--<img :src="item.url" class="avatars">-->
           <i class="el-icon-plus"/>
         </el-upload>
         <div class="tips">图片大小控制在2M以内，宽750*高512象素</div>
@@ -91,16 +91,16 @@
         <el-radio v-model="spec" label="0">关闭规格</el-radio>
       </el-form-item>
       <el-form-item required label="开始时间：">
-        <el-date-picker v-model="goodsForm.start_at" value-format="yyyy-MM-dd" type="date" placeholder="选择开始日期" /> -
-        <el-time-select  placeholder="选择开始时间" value-format="HH:mm:ss" v-model="start_at_time" :picker-options='timeOption'> </el-time-select>
+        <el-date-picker v-model="start_date" value-format="yyyy-MM-dd" type="date" placeholder="选择开始日期" /> -
+        <el-time-select  placeholder="选择开始时间" format="HH:mm:ss" v-model="start_at_time" :picker-options='timeOption'> </el-time-select>
       </el-form-item>
       <el-form-item required label="结束时间：">
-        <el-date-picker v-model="goodsForm.end_at" value-format="yyyy-MM-dd" type="date" placeholder="选择结束日期" /> -
-        <el-time-select  placeholder="选择结束时间" value-format="HH:mm:ss" v-model="end_at_time" :picker-options='timeOption'> </el-time-select>
+        <el-date-picker v-model="end_date" value-format="yyyy-MM-dd" type="date" placeholder="选择结束日期" /> -
+        <el-time-select  placeholder="选择结束时间" format="HH:mm:ss" v-model="end_at_time" :picker-options='timeOption'> </el-time-select>
       </el-form-item>
       <el-form-item label="预配送日期：">
-        <el-date-picker v-model="goodsForm.delivery_at" value-format="yyyy-MM-dd" type="date" placeholder="选择预配送日期" /> -
-        <el-time-select  placeholder="选择预配送时间" value-format="HH:mm:ss" v-model="delivery_at_time" :picker-options='timeOption'> </el-time-select>
+        <el-date-picker v-model="delivery_date" value-format="yyyy-MM-dd" type="date" placeholder="选择预配送日期" /> -
+        <el-time-select  placeholder="选择预配送时间" format="HH:mm:ss" v-model="delivery_at_time" :picker-options='timeOption'> </el-time-select>
         <div class="tips">预配送时间为选填项</div>
       </el-form-item>
       <el-form-item label="商品限购量：">
@@ -112,7 +112,7 @@
         <div class="tips">团长佣金以元为单为计算，可保留小数点后两位</div>
       </el-form-item>
       <el-form-item  label="团长推荐佣金：">
-        <el-input  class="inp" placeholder="10" /> 元<!--v-model="goodsForm.commission"-->
+        <el-input  class="inp" placeholder="10" v-model="goodsForm.commander_leader_commission"/> 元<!--v-model="goodsForm.commission"-->
         <div class="tips">推荐团长佣金以元为单为计算，可保留小数点后两位</div>
       </el-form-item>
       <el-form-item label="商品状态：">
@@ -123,7 +123,7 @@
         <tinymce ref="box" v-model="content" class="textarea"/>
       </el-form-item>
       <el-form-item>
-        <el-button type="primary" @click="onSubmit(goodsForm)">{{ btnText }}</el-button>
+        <el-button  type="primary" @click="onSubmit(goodsForm)">{{ btnText }}</el-button>
       </el-form-item>
     </el-form>
   </div>
@@ -132,12 +132,14 @@
 <script>
 import tinymce from '@/components/tinymce'
 import { getFenlei, getP, addGoods, goodsView } from '@/api/exportgoods'
+import { editGoods } from '@/api/goodslist'
 import { getToken } from '@/utils/auth'
 
 export default {
   components: { tinymce },
   data() {
     return {
+      id:this.$route.query.id,//商品id
       areaList:[],//选择的区域列表
       timeOption:{
         start: '00:00',
@@ -168,10 +170,11 @@ export default {
         goods_limit_stock: '',
         stock: '',
         commission: '',
+        commander_leader_commission:'',//团长推荐佣金
         goods_type: '',
         details: '',
         address_ids:[],//城市多选
-        regimental_ids:''//团长多选
+        regimental_ids:[]//团长多选
       },
       headers: { // 图片请求头部
         Authorization: ''
@@ -189,6 +192,9 @@ export default {
         dirname: 'companies',
         images: ''
       },
+      start_date:'',
+      end_date:'',
+      delivery_date:'',
       btnText: '确认提交',
       spec: '0',
       coloneList:[]//团长列表
@@ -240,7 +246,6 @@ export default {
              }
           }
           obj[this.province_id] = this.city_id
-          //this.goodsForm.address_ids.push(`{'${this.province_id}':'${this.city_id}'}`)
           this.goodsForm.address_ids.push(obj)
           this.areaList.push(area)
         }
@@ -256,24 +261,56 @@ export default {
     },
     // 编辑获取信息
     async getView() {
+      var subids = []
+      this.areaList = []
+      this.commander = []
       try {
-        const res = await goodsView(this.$route.query.id)
-        this.goodsForm = res
-        if (res.show_region_type === 0) {
-          this.goodsForm.show_region.province_id = '1'
-        }
-        if (res.goods_sku_status === true) {
-          this.spec = '1'
-        }
-        this.$refs.box.setContent(res.details)
-        if (res.detail_picture.length > 0) {
-          for (let i = 0; i < res.detail_picture.length; i++) {
-            this.dialogImageUrl.push({
-              name: res.detail_picture[i].id,
-              url: res.detail_picture[i].image
-            })
-          }
-        }
+         await goodsView(this.$route.query.id).then(res=>{
+           this.goodsForm = res
+            var cnames = Object.values(res.goods_show_region)
+           //城市列表渲染
+            for(let k=0;k<res.show_region.length;k++){
+              var area={'province_id':'','province':'','city_id':'','city':''}
+              var obj = {}
+              area.province_id = res.show_region[k].province_id
+              area.city_id = res.show_region[k].city_id
+              area.province = cnames[k].split(' ')[0]
+              area.city = cnames[k].split(' ')[1]
+              this.areaList.push(area)
+              obj[area.province_id] = area.city_id
+              subids.push(obj)
+            }
+           this.goodsForm.address_ids = subids
+            //团长列表渲染
+            for(let s=0;s<res.show_commander.length;s++){
+              this.commander.push(res.show_commander[s].commander_id)
+            }
+           if (res.show_region_type === 0) {
+             this.goodsForm.show_region.province_id = '1'
+           }
+           if (res.goods_sku_status === true) {
+             this.spec = '1'
+           }
+           this.$refs.box.setContent(res.details)
+           //产品详情图
+           if (res.detail_picture.length > 0) {
+             for (let a = 0; a < res.detail_picture.length; a++) {
+               this.dialogImageUrl.push({
+                 'name': res.detail_picture[a].id,
+                 'url': res.detail_picture[a].image
+               })
+             }
+           }
+           //商品开始时间 结束时间处理
+           this.start_date =  res.start_at.split(' ')[0]
+           this.start_at_time = res.start_at.split(' ')[1].slice(0,5)
+           this.end_date = res.end_at.split(' ')[0]
+           this.end_at_time = res.end_at.split(' ')[1].slice(0,5)
+           if(res.delivery_at){
+             this.delivery_date = res.delivery_at.split(' ')[0]
+             this.delivery_at_time = res.delivery_at.split(' ')[1].slice(0,5)
+           }
+        })
       } catch (err) {
         console.log(err)
       }
@@ -342,17 +379,17 @@ export default {
     },
     // 详情图
     addImageSuccess(res) {
-      this.dialogImageUrl.push({ 'image': res.path })
+      this.dialogImageUrl.push({ 'url': res.path })
     },
     addImageBefore(res) {
       this.AddImageUrl['images'] = res
     },
     // 提交
     async onSubmit(val) {
-      val.start_at = val.start_at + ' '+ this.start_at_time + ':00'
-      val.end_at = val.end_at + ' '+ this.end_at_time + ':00'
-      if(val.delivery_at ){
-        val.delivery_at = val.delivery_at+' '+ this.delivery_at_time + ':00'
+      val.start_at = this.start_date + ' '+ this.start_at_time + ':00'
+      val.end_at = this.end_date + ' '+ this.end_at_time + ':00'
+      if(this.delivery_date && this.delivery_at_time ){
+        val.delivery_at =this.delivery_date +' '+ this.delivery_at_time + ':00'
       }
       val.detail_picture = JSON.stringify(this.dialogImageUrl)
       val.details = this.content
@@ -362,7 +399,7 @@ export default {
       if (this.province_id == '1') {
         val.address_ids = ''
       }else if(val.address_ids){
-        val.address_ids = JSON.stringify(val.address_ids)
+        //val.address_ids = JSON.stringify(val.address_ids)
       }
       //团长格式处理
       if(this.commander.includes('all')){ //返回true  or false
@@ -372,17 +409,37 @@ export default {
         val.regimental_ids = JSON.stringify(this.commander)
       }
       if (this.spec == '0') {//无规格
-        try {
-          await addGoods(val)
-          this.goodsForm.start_at = ''
-          this.goodsForm.end_at = ''
-          this.goodsForm.delivery_at = ''
-          this.$message({
-            message: '提交成功',
-            type: 'success'
-          })
-        } catch (err) {
-          console.log(err)
+        //发布商品
+        if(!this.$route.query.id){
+          try {
+            await addGoods(val)
+            this.goodsForm.start_at = ''
+            this.goodsForm.end_at = ''
+            this.goodsForm.delivery_at = ''
+            this.$message({
+              message: '商品发布成功',
+              type: 'success'
+            })
+          } catch (err) {
+            console.log(err)
+          }
+        }else if(this.$route.query.id){
+           //重新编辑商品
+          try{
+             await editGoods(this.$route.query.id,val.category_id,val.name,val.introduce,val.main_picture,val.detail_picture,val.video_url,val.price,val.original_price,val.cost_price,val.goods_sku_status,
+               val.start_at,val.end_at,val.delivery_at,val.goods_limit_stock,val.stock,val.commission,val.commander_leader_commission,val.goods_type,val.details,
+               val.address_ids,val.regimental_ids).then(res=>{
+               this.goodsForm.start_at = ''
+               this.goodsForm.end_at = ''
+               this.goodsForm.delivery_at = ''
+               this.$message({
+                 message: '商品修改成功',
+                 type: 'success'
+               })
+             })
+          }catch(err){
+             console.log(err)
+          }
         }
       } else {
         // 跳转添加规格

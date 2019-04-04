@@ -39,16 +39,17 @@ const user = {
     //     })
     //   })
     // },
-    async Login({ commit }, userInfo) {
+    async Login({ commit }, userInfo) {//登录获得token
       const username = userInfo.username.trim()
-      try {
-        const res = await Login(username, userInfo.password, userInfo.qrcode, userInfo.qrcode_key)
-        setToken(res.data.access_token)
-        //localStorage.setItem(TokenKey, res.data.access_token)
-        //console.log(res.data.access_token)
-        commit('SET_TOKEN', res.data.access_token)
-        //console.log(user.state.token)  //token设置成功
-        return Promise.resolve()
+        try {
+        await Login(username, userInfo.password, userInfo.qrcode, userInfo.qrcode_key).then(res=>{
+          setToken(res.data.access_token)
+          //localStorage.setItem(TokenKey, res.data.access_token)
+          //console.log(res.data.access_token)
+          commit('SET_TOKEN',res.data.access_token)//res.data.access_token
+          console.log(user.state.token)  //token设置成功
+          return Promise.resolve()
+        })
       } catch (err) {
         return Promise.reject(err)
       }

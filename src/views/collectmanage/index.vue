@@ -4,6 +4,9 @@
     <div class="route_btn">
       <el-button type="primary" icon="el-icon-circle-plus-outline" @click="addroute();dialogVisible=true">添加线路</el-button>
     </div>
+    <p class="z-text">
+       <span>*</span> 注：可一键导出每条线路下各取货点的已支付订单详情
+    </p>
     <!-- 按钮结束 -->
     <div class="collectmanage-title">
       <div class="collectmanage-content">
@@ -12,21 +15,20 @@
           <el-button size="medium" type="primary">导出物流列表</el-button><!--@click="exportExcel"-->
           <el-form-item label="所在区域：">
 					<el-select placeholder="请选择所在省" v-model="province.province_id" @change="changePro">
-						<el-option v-for="item in province" :key="item.province_id" :label="item.name" :value="item.province_id" />
+						<el-option v-for="item in province"  :label="item.name" :value="item.province_id" />
 					</el-select>
 					<el-select placeholder="请选择所在区域" v-model="city.city_id">
-						<el-option v-for="item in city" :key="item.city_id" :label="item.name" :value="item.city_id" />
+						<el-option v-for="item in city" :label="item.name" :value="item.city_id" />
 					</el-select>
 				</el-form-item>
           <el-form-item label="线路名称">
             <el-select v-model="lineChoose" multiple collapse-tags>
               <el-option
-                v-for="item in cities"
-                :key="item.value"
-                :label="item.label"
-                :value="item.value">
-                {{ item.label }}
-                <el-checkbox :value="item.value"/>
+                v-for="item in tableData"
+                :label="item.line_name"
+                :value="item.id">
+                <el-checkbox :value="item.id"/>
+                {{ item.line_name }}
               </el-option>
             </el-select>
           </el-form-item>
@@ -46,7 +48,7 @@
           <el-date-picker v-model="val" type="date" placeholder="请输入订单开始时间" class="in"/>
           <el-date-picker v-model="val1" type="date" placeholder="请输入订单结束时间" class="in"/>
           <el-button type="primary" @click="inquire()">查询</el-button>
-          <span>清空记录</span>
+          <span style="cursor:pointer;font-weight:bold;" @click="clearValue">清空记录</span>
         </el-form>
       </div>
     </div>
@@ -60,7 +62,7 @@
             {{ scope.row.line_name }}
           </div>
           <div class="xingzhi">
-            <ul v-for="(i,index) in scope.row.commanders" :key="index" class="xz">
+            <ul v-for="(i,index) in scope.row.commanders"  class="xz">
               <li>{{ i.commander_info.address }}</li>
             </ul>
           </div>
@@ -72,7 +74,7 @@
             {{ scope.row.driver_name }}
           </div>
           <div class="xingzhi">
-            <ul v-for="(i,index) in scope.row.commanders" :key="index" class="xz">
+            <ul v-for="(i,index) in scope.row.commanders"  class="xz">
               <li>{{ i.commander_info.name }}</li>
             </ul>
           </div>
@@ -84,7 +86,7 @@
             {{ scope.row.driver_phone }}
           </div>
           <div class="xingzhi">
-            <ul v-for="(i,index) in scope.row.commanders" :key="index" class="xz">
+            <ul v-for="(i,index) in scope.row.commanders" class="xz">
               <li>{{ i.commander_info.phone }}</li>
             </ul>
           </div>
@@ -96,14 +98,14 @@
             <el-button size="mini" type="primary" @click="handEdit(scope.$index,scope.row);dialogVisible = true">
               编辑
             </el-button>
-            <el-button size="mini" type="danger" @click="deleteEdit(scope.$index,scope.row);housing()">
+            <el-button size="mini" type="danger" @click="deleteEdit(scope.$index,scope.row)">
               删除
             </el-button>
           </div>
           <div class="xingzhi">
-            <ul v-for="(i,index) in scope.row.commanders" :key="index" class="xz">
+            <ul v-for="(i,index) in scope.row.commanders"  class="xz">
               <li>
-                <el-button size="mini" type="danger" @click="deleteEdithouse(scope.$index,scope.row);housing()">
+                <el-button size="mini" type="danger" @click="deleteEdithouse(scope.$index,scope.row)">
                   删除
                 </el-button>
               </li>
@@ -141,10 +143,10 @@
           <div class="msg1name">所属地区：</div>
           <div class="inname">
             <el-select v-model="val" placeholder="请选择所属省">
-              <el-option v-for="(item,id) in checkpro" :key="id" :label="item.name" :value="item.province_id" @click.native="belongs(item.province_id)"/>
+              <el-option v-for="(item,id) in checkpro"  :label="item.name" :value="item.province_id" @click.native="belongs(item.province_id)"/>
             </el-select>
             <el-select v-model="belongcity" placeholder="请选择所属市">
-              <el-option v-for="(ite,id) in checkcitys" :key="id" :label="ite.name" :value="ite.city_id" />
+              <el-option v-for="(ite,id) in checkcitys"  :label="ite.name" :value="ite.city_id" />
             </el-select>
           </div>
         </div>
@@ -160,7 +162,7 @@
           <div class="checkleft">
             <div class="checktitle">省份</div>
             <div class="checktitle_child">
-              <div v-for="(item,id) in checkpro" :key="id" :class="ing1==item.province_id?'red':''" class="line_ys" @click="sf(item.province_id,item.name,item,item.province_id)">{{ item.name }}</div>
+              <div v-for="(item,id) in checkpro"  :class="ing1==item.province_id?'red':''" class="line_ys" @click="sf(item.province_id,item.name,item,item.province_id)">{{ item.name }}</div>
             </div>
           </div>
           <div class="checkmiddle">
@@ -168,7 +170,7 @@
             <div class="checktitle_child1">
               <div v-if="hh==''" class="line_ys">请选择城市</div>
               <template v-if="hh!==''">
-                <div v-for="(itemm,id) in shuzu" :key="id" :class="ing2==id?'red':''" class="line_ys" @click="cs(itemm.name,itemm,id,itemm.city_id)">{{ itemm.name }}</div>
+                <div v-for="(itemm,id) in shuzu"  :class="ing2==id?'red':''" class="line_ys" @click="cs(itemm.name,itemm,id,itemm.city_id)">{{ itemm.name }}</div>
               </template>
             </div>
           </div>
@@ -179,7 +181,7 @@
           <div class="checkright">
             <div class="righttitle">显示城市</div>
             <div class="checktitle_child2">
-              <div v-for="(item,id) in bigshuzu" id="getelement" :key="id" :class="ing3==id?'red':''" class="line_ys" @click="xianshi(id,item.city_id)">
+              <div v-for="(item,id) in bigshuzu" id="getelement"  :class="ing3==id?'red':''" class="line_ys" @click="xianshi(id,item.city_id)">
                 {{ item.province_name }}{{ item.city_name }}
               </div>
             </div>
@@ -191,7 +193,7 @@
             <div class="routetitle">线路内取货点</div>
             <div class="checktitle_child3">
               <el-checkbox-group v-model="checkedValue">
-                <el-checkbox v-for="people in goods" :label="people" :key="people" class="pop_msg">{{ people.name }}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{{ people.address }}</el-checkbox>
+                <el-checkbox v-for="people in goods" :label="people"  class="pop_msg">{{ people.name }}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{{ people.address }}</el-checkbox>
               </el-checkbox-group>
             </div>
           </div>
@@ -202,9 +204,9 @@
       <!-- 按钮设置 -->
       <div class="pop_bottom">
         <!-- 当是修改时进行点击保存 -->
-        <el-button v-if="gaibian" type="primary" class="bottom_btn" @click="updateset();updatemsg()">保存设置</el-button>
+        <el-button v-if="gaibian" type="primary" class="bottom_btn" @click="updateset()">保存设置</el-button>
         <!-- 当是添加时进行点击保存 -->
-        <el-button v-else type="primary" class="bottom_btn" @click="saveset();addmsg()">保存设置</el-button>
+        <el-button v-else type="primary" class="bottom_btn" @click="saveset()">保存设置</el-button>
       </div>
       <!-- 按钮设置完毕 -->
     </el-dialog>
@@ -218,21 +220,6 @@ export default{
     return {
       province:'',//省
       city:'',//市
-      // 线路名称
-      cities: [
-        { value: '选项1',
-          label: '黄金糕'
-        }, {
-          value: '选项2',
-          label: '双皮奶'
-        }, {
-          value: '选项3',
-          label: '蚵仔煎'
-        }, {
-          value: '选项4',
-          label: '龙须面'
-        }
-      ],
       background: '', // 分页背景颜色
       input: '',
       val: '',
@@ -358,6 +345,20 @@ export default{
     this.getGoodsInfo()
   },
   methods: {
+      //根据条件查询
+    async inquire(){
+
+    },
+       //清空记录
+      clearValue:function(){
+         this.province = ''
+         this.city = ''
+         this.lineChoose = ''
+         this.proChoose = ''
+         this.val = ''
+         this.vall = ''
+
+      },
   	//获取省
 			async getProvince() {
 				try {
@@ -384,18 +385,6 @@ export default{
 			changePro: function() {
 				this.getCity()
 			},
-    // 小区删除message提示
-    housing() {
-      this.$message('删除成功')
-    },
-    // 添加页面进行保存时
-    addmsg() {
-      this.$message('添加成功')
-    },
-    // 修改页面进行保存时
-    updatemsg() {
-      this.$message('修改成功')
-    },
     // 顶部查询
     // currentpage改变时会触发
     current_change: function(currentPage) {
@@ -404,7 +393,6 @@ export default{
     },
     // 点击编辑按钮
     async handEdit(index, row) {
-      console.log(row)
       this.bigshuzu = []
       this.goods = []
       this.gaibian = true
@@ -415,7 +403,6 @@ export default{
       } catch (err) {
         console.log(err)
       }
-      console.log('res.show_region', this.alertcontent.show_region)
       for (const i in this.alertcontent.show_region) {
         // 通过后台获取的省份id获取到省份名称
         for (const ii in this.checkpro) {
@@ -431,7 +418,6 @@ export default{
           if (this.alertcontent.show_region[i].city_id === res.data[iii].city_id) {
             this.cityname = res.data[iii].name
             this.cityids = res.data[iii].city_id
-            console.log('this.cityids', this.cityids)
           }
         }
         this.newshuzu = {}
@@ -444,36 +430,36 @@ export default{
         this.newshuzu['area_id'] = this.areaid
         this.bigshuzu.push(this.newshuzu)
         this.ing3 = this.bigshuzu.length - 1
-        console.log('xianhh', this.bigshuzu)
         // 显示线路内取货点
         for (const i in this.bigshuzu) {
           this.allcityid.push(this.bigshuzu[i].city_id)
           this.getcitys()
         }
-        console.log('this.goods', this.goods)
-        // this.checkedValue
       }
     },
     // 线路删除
     async deleteEdit(index, row) {
-      console.log(index, row)
       try {
-        await deleteroute(row.id)
-        this.wuliulist()
+        await deleteroute(row.id).then(res =>{
+           this.wuliulist()
+           this.$message('删除成功')
+        })
+
       } catch (err) {
         console.log(err)
       }
     },
     // 小区的删除
     async deleteEdithouse(index, row) {
-      console.log(row)
       for (const i in row.commanders) {
         this.deleteid = row.commanders[i].commander_id
       }
       try {
-        console.log('111')
-        await getgoods(this.deleteid, row.id)
-        this.wuliulist()
+        await getgoods(this.deleteid, row.id).then(res=>{
+          this.wuliulist()
+          this.$message('删除成功')
+        })
+
       } catch (err) {
         console.log(err)
       }
@@ -503,14 +489,12 @@ export default{
           this.shuzu.push(this.checkcity[i])
         }
       }
-      console.log('this.shuzu', this.shuzu)
       this.csid = this.shuzu[0].name
     },
     // 点击城市时
     cs: function(e, itemm, id, cilist) {
       this.ing2 = id
       this.cilist = cilist
-      console.log('this.cilist', this.cilist)
       this.csid = e
     },
     // 点击移入时
@@ -556,7 +540,6 @@ export default{
       for (const i in this.bigshuzu) {
         this.allcityid.push(this.bigshuzu[i].city_id)
       }
-      console.log('数组内容', this.allcityid)
       this.getcitys()
     },
     alinputcheck() {
@@ -570,7 +553,6 @@ export default{
       try {
        await logistic(this.currentPage).then(res=>{
         	  this.tableData = res.data
-            console.log('物流线路', this.tableData)
             this.total = res.meta.pagination.total
             this.pagesize = res.meta.pagination.per_page
         })
@@ -591,13 +573,16 @@ export default{
     async updateset() {
       try {
         for (const i in this.answer) {
-          console.log('修改7', this.answer[i].id)
           this.commander_msg.push({
             'commander_id': this.answer[i].id
           })
         }
-        await updateroute(this.alertcontent.id, this.alertcontent.driver_name, this.alertcontent.driver_phone, this.alertcontent.line_name, JSON.stringify(this.bigshuzu), JSON.stringify(this.commander_msg))
-        this.$router.go(0)
+        await updateroute(this.alertcontent.id, this.alertcontent.driver_name, this.alertcontent.driver_phone, this.alertcontent.line_name, JSON.stringify(this.bigshuzu), JSON.stringify(this.commander_msg)).then(res=>{
+          this.$message('修改成功')
+          this.wuliulist()
+          this.dialogVisible = false
+
+        })
       } catch (err) {
         console.log(err)
       }
@@ -605,15 +590,16 @@ export default{
     // 点击保存设置进行添加线路
     async saveset() {
       try {
-        console.log(this.answer)
         for (const i in this.answer) {
-          console.log('修改7', this.answer[i].id)
           this.commander_msg.push({
             'commander_id': this.answer[i].id
           })
         }
-        await addlogistic(this.alertcontent.driver_name, this.alertcontent.driver_phone, this.alertcontent.line_name, JSON.stringify(this.bigshuzu), JSON.stringify(this.commander_msg))
-        this.$router.go(0)
+        await addlogistic(this.alertcontent.driver_name, this.alertcontent.driver_phone, this.alertcontent.line_name, JSON.stringify(this.bigshuzu), JSON.stringify(this.commander_msg)).then(res=>{
+          this.$message('添加成功')
+          this.wuliulist()
+          this.dialogVisible = false
+        })
       } catch (err) {
         console.log(err)
       }
@@ -639,17 +625,25 @@ export default{
     //获取商品 名称 列表
     async getGoodsInfo(){
     	try{
-    		 await getGoodsName().then(res => {
-    		 	   this.produce = res.data
-    		 })
-    	}catch(err){
-    		console.log(err)
-    	}
+        await getGoodsName().then(res => {
+          this.produce = res.data
+        })
+      }catch(err){
+        console.log(err)
+      }
     }
   }
 }
 </script>
 <style>
+  /***备注样式***/
+  .z-text{
+    color:#aaaaaa;
+    font-size:14px;
+  }
+  .z-text>span{
+     color:red;
+  }
 /* 顶部按钮 */
 .red{
   background: #FDEEE4;

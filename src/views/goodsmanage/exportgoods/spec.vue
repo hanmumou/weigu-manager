@@ -66,8 +66,6 @@
 				tableData: [],
 				goodsForm: {
 					category_id: this.$route.params.category_id,
-					show_region_type: this.$route.params.show_region_type,
-					show_region: this.$route.params.show_region,
 					name: this.$route.params.name,
 					introduce: this.$route.params.introduce,
 					main_picture: this.$route.params.main_picture,
@@ -84,7 +82,9 @@
 					goods_limit_stock: this.$route.params.goods_limit_stock,
 					commission: this.$route.params.commission,
 					goods_type: this.$route.params.goods_type,
-					details: this.$route.params.detailss
+					details: this.$route.params.detailss,
+          address_ids:this.$route.params.address_ids,//城市多选
+          regimental_ids:this.$route.params.regimental_ids//团长多选
 				},
 				stockList: [],
 				data: [],
@@ -97,7 +97,7 @@
 		},
 		methods: {
 			async onSubmit() {
-                //提交商品的时候 先调用发布商品接口,将一级规格名称和二级规格名称传过去  调笛卡尔积接口获取对应的排列的id 获得id之后传库存和价格 
+                //提交商品的时候 先调用发布商品接口,将一级规格名称和二级规格名称传过去  调笛卡尔积接口获取对应的排列的id 获得id之后传库存和价格
                 //提交之前 先将商品的规格转换成正确的格式
                 //[{"type":"版本","detail":[{"name":"iPhone X"},{"name":"iPhone XS"}]},{"type":"网络类型","detail":[{"name":"无合约版"}]}]
                 let specJson=[]
@@ -115,7 +115,7 @@
                 try{
                 	await addGoods(this.goodsForm).then(res=>{
                            //调取 商品所有属性笛卡尔积接口
-                           let id=res.data.id 
+                           let id=res.data.id
              			getSku(id).then(res=>{
              				let table=res.data
              				//返回的是笛卡尔积列表  且与tableData的表格相符   将id赋值
@@ -195,7 +195,7 @@
 								label: this.specList[index].name,
 								prop: 'names2'
 							})
-							let data2 = [] //第二列的数据  
+							let data2 = [] //第二列的数据
 							for(var i = 0; i < this.specList[index - 1].items.length; i++) {
 								data2.push({
 									id:'',
@@ -223,7 +223,7 @@
 							this.spanNum = this.specList[index].items.length
 						}
 					}
-				} else if(this.specList.length == 3) { //第三个规格的添加   
+				} else if(this.specList.length == 3) { //第三个规格的添加
 					if(index == 0) { //添加的是第一个规格中的二级标签
 						//重新渲染表格
 						let datass = []
@@ -262,7 +262,7 @@
 						this.tableData = datass2
 						this.spanNum = this.specList[1].items.length
 					} else if(index == 2) { //添加的是第三个规格中的标签
-						//将第三列的  规格名称  添加到表格的列名中 
+						//将第三列的  规格名称  添加到表格的列名中
 						if(this.specList[index].items.length == 1) { //第三列的规格中只有一个 二级规格时
 							//添加第三列内容  在cols 中插入新的一列
 							this.cols.push({
@@ -360,7 +360,7 @@
 							}
 						}
 					}
-				} else if(this.specList.length == 3 && this.specList[2].items.length >= 2 && this.specList[1].items.length == 1) { //第二个二级规格 只有一个产品规格时   
+				} else if(this.specList.length == 3 && this.specList[2].items.length >= 2 && this.specList[1].items.length == 1) { //第二个二级规格 只有一个产品规格时
 					//只需要按照第三个规格中的产品规格名称的个数进行合并
 					this.spanNum2 = parseInt(this.spanNum2)
 					//对第一列 跟第二列 进行合并
@@ -545,7 +545,7 @@
 									names: '',
 									names2: '',
 									price:'',
-							        stock:''
+                  stock:''
 								}
 								_objs.names = this.tableData[j].names
 								_objs.names2 = this.tableData[j].names3
@@ -627,7 +627,7 @@
 					}
 				}
 			},
-			//删除一级规格  
+			//删除一级规格
 			delBigClos: function(index) {
 				//只有一个一级规格时
 				if(this.specList.length == 1) {
@@ -682,8 +682,8 @@
 						this.specList.splice(1, 1)
 					}
 				} else if(this.specList.length == 3) { //有三个一级规格
-					if(index == 0) { //删除的是第一个一级规格   
-						//重新渲染列  
+					if(index == 0) { //删除的是第一个一级规格
+						//重新渲染列
 						this.cols = [{
 							label: this.specList[1].name, //显示第二个一级规格的名字
 							prop: 'names'
@@ -789,25 +789,25 @@
 		font-size: 14px;
 		padding: 40px 0 0 60px;
 	}
-	
+
 	.spec_add_top {
 		display: flex;
 		align-items: flex-start;
 	}
-	
+
 	.form_box {
 		width: 30%;
 		display: inline-block;
 	}
-	
+
 	.spec_add .form_box .el-form {
 		height: 100%;
 	}
-	
+
 	.ipt {
 		width: 80%;
 	}
-	
+
 	.add {
 		font-size: 1em;
 		color: #00b4ff;
@@ -815,7 +815,7 @@
 		cursor: pointer;
 		width: 10%;
 	}
-	
+
 	.addSepc {
 		/* width: 32em; */
 		height: 2.75em;
@@ -825,11 +825,11 @@
 		margin-left: .5em;
 		margin-bottom: 1em
 	}
-	
+
 	.submit {
 		margin-top: 3em;
 	}
-	
+
 	.squre {
 		display: inline-block;
 		min-width: 6em;
@@ -839,15 +839,15 @@
 		border-radius: 2em;
 		border: 1px solid #999999;
 	}
-	
+
 	.spec_add .squre i {
 		margin-left: 0.5em;
 	}
-	
+
 	.dis-inline {
 		display: inline;
 	}
-	
+
 	.btn {
 		width: 6em;
 		height: 2em;
@@ -857,7 +857,7 @@
 		border-radius: .5em;
 		margin-left: 24%;
 	}
-	
+
 	.btn2 {
 		width: 6em;
 		height: 2em;

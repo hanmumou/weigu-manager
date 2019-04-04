@@ -8,7 +8,7 @@
 					<div class="one_city">配送区域:</div>
 					<el-radio-group v-model="distribution" @change="isdistribution">
 						<el-radio label="1">全国</el-radio>
-						<el-radio label="2">区域配送</el-radio>
+						<el-radio label="2" >区域配送</el-radio>
 					</el-radio-group>
 				</div>
 				<!--第一行结束-->
@@ -199,7 +199,7 @@
 				input1: '',
 				input2: '',
 				input3: '',
-				distribution: '1', // 配送区域
+				distribution: '', // 配送区域
 				movement: '', // 运动积分
 				ranking: '', // 团长排行
 				technical_support: '',
@@ -261,7 +261,7 @@
 				try {
 					const res = await globalList()
 					this.id = res.data[0].id
-					this.distribution = res.data[0].distribution_area
+					this.distribution = res.data[0].distribution_area + ''
 					this.value = res.data[0].distribution_mode
 					this.value1 = res.data[0].forwarding_display
 					this.technical_support = res.data[0].technical_support
@@ -387,7 +387,7 @@
 		padding: 20px 0;
 	}
 	/*第一个模板*/
-	
+
 	.dad-container .dad_one {
 		width: 90%;
 		/*height: 428px;*/
@@ -396,7 +396,7 @@
 		position: relative;
 	}
 	/*第一行*/
-	
+
 	.dad-container .one {
 		display: flex;
 		flex-direction: row;
@@ -405,26 +405,26 @@
 		margin-left: 8%;
 		font-size: 14px;
 	}
-	
+
 	.dad-container .one_city {
 		margin-right: 30px;
 	}
 	/*第二行*/
-	
+
 	.dad-container .two {
 		margin-left: 10%;
 		margin-top: 1.875em;
 		font-size: 14px;
 	}
-	
+
 	.dad-container .two_se {
 		margin-right: 15px;
 	}
-	
+
 	.dad-container .se_r {
 		margin-right: 20px;
 	}
-	
+
 	.dad-container .stra {
 		font-size: 12px;
 		color: #99a9bf;
@@ -434,12 +434,12 @@
 		/*top: 137px;*/
 		/*left:230px;*/
 	}
-	
+
 	.dad-container .anniu {
 		margin-left: 20px;
 	}
 	/*第三行*/
-	
+
 	.dad-container .three {
 		width: 70%;
 		margin-left: 10%;
@@ -448,7 +448,7 @@
 	}
 	/*第一个模块结束*/
 	/*第二个模块*/
-	
+
 	.dad-container .dad_two {
 		width: 43%;
 		background: white;
@@ -458,13 +458,13 @@
 		top: 0;
 		padding-bottom:30px;
 	}
-	
+
 	.dad-container .two_row {
 		padding: 6% 0px 0 8%;
 		display: flex;
 		flex-direction: row;
 	}
-	
+
 	.dad-container .row_l {
 		width: 150px;
 		height: 40px;
@@ -472,31 +472,31 @@
 		padding-right: 10px;
 		line-height: 40px;
 	}
-	
+
 	.dad-container .global_other {
 		width: 250px;
 		;
 	}
-	
+
 	.dad-container .sel_in {
 		width: 250px;
 	}
 	/*第二个模块结束*/
 	/*第三个模块*/
-	
+
 	.dad-container .dad_three {
 		width: 43%;
 		background: white;
 		margin-top: 30px;
 		margin-left: 3.5%;
 	}
-	
+
 	.dad-container .three_row {
 		padding: 20px 0px 0 89px;
 		/*display: flex;*/
 		/*flex-direction: row;*/
 	}
-	
+
 	.dad-container .three_l {
 		float: left;
 		width: 150px;
@@ -505,19 +505,19 @@
 		padding-right: 10px;
 		line-height: 40px;
 	}
-	
+
 	.dad-container .three_2 {
 		width: 250px;
 		float: left;
 		height: 40px;
 		line-height: 40px;
 	}
-	
+
 	.dad-container .row_row {
 		width: 100%;
 		height: 50px;
 	}
-	
+
 	.dad-container .global_word {
 		font-size: 10px;
 		margin-left: 150px;
@@ -525,13 +525,13 @@
 	}
 	/*第三个模块结束*/
 	/*清除浮动样式*/
-	
+
 	.dad-container .clear {
 		clear: both;
 	}
 	/*清除浮动样式结束*/
 	/*按钮*/
-	
+
 	.dad-container .global_btn {
 		width: 100%;
 		height: 50px;
@@ -539,14 +539,14 @@
 		/*text-align: center;*/
 		/*display: block;*/
 	}
-	
+
 	.dad-container .bbb {
 		width: 240px;
 		height: 50px;
 		margin-left: 41%;
 	}
 	/*按钮结束*/
-	
+
 	.dad-container .all {
 		width: 100%;
 		height: 100%;
@@ -555,13 +555,13 @@
 		margin-left: 5%;
 	}
 	/* 隐藏 */
-	
+
 	.isshow {}
-	
+
 	.ishiden {
 		display: none;
 	}
-	
+
 	.one {
 		padding-bottom: 20px;
 	}

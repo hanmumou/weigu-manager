@@ -57,3 +57,6 @@ export const getgoods = (commander_id, delivery_line_id) => GET('api/delivery-li
 
 // 物流管理  获取产品名称
 export const getGoodsName = () => GET('api/goods/back')
+
+//物流管理 根据条件查询相关线路
+

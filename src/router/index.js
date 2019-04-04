@@ -131,12 +131,21 @@ export const constantRouterMap = [
   {
     path: '/rootmanage',
     component: Layout,
+    redirect: '/rootmanage/addroot',
+    name: 'rootmanage',
+    meta: { title: '权限管理', icon: 'setup' },
     children: [
       {
-        path: 'index',
-        name: 'rootmanage',
-        component: () => import('@/views/rootmanage/index'),
-        meta: { title: '权限管理', icon: 'permissions' }
+        path: '/rootmanage/addroot',
+        component: () => import('@/views/rootmanage/addroot/index'),
+        name: 'addroot',
+        meta: { title: '管理员权限设置' }
+      },
+      {
+        path: '/rootmanage/arearootlist',
+        component: () => import('@/views/rootmanage/arearootlist/index'),
+        name: 'arearootlist',
+        meta: { title: '管理员列表' }
       }
     ]
   },
@@ -171,12 +180,12 @@ export const constantRouterMap = [
         name: 'goodslist',
         meta: { title: '商品列表' }
       }
-//    {
-//      path: '/goodsmanage/goodshow',
-//      component: () => import('@/views/goodsmanage/goodshow/index'),
-//      name: 'goodshow',
-//      meta: { title: '商品展示区域' }
-//    }
+      //    {
+      //      path: '/goodsmanage/goodshow',
+      //      component: () => import('@/views/goodsmanage/goodshow/index'),
+      //      name: 'goodshow',
+      //      meta: { title: '商品展示区域' }
+      //    }
     ]
   },
   {

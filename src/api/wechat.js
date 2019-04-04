@@ -1,6 +1,7 @@
 import { post, GET, patch } from '@/utils/request'
 // 添加
-export const addwechat = (payment_name, appid, appsecret, mch_id, key, apiclient_cert, apiclient_key, payment_agreement) => post('api/wechat/payment/config', {
+export const addwechat = (miniprogram_name, payment_name, appid, appsecret, mch_id, key, apiclient_cert, apiclient_key, payment_agreement) => post('api/wechat/payment/config', {
+  miniprogram_name,
   payment_name,
   appid,
   appsecret,

@@ -13,12 +13,13 @@
               </el-upload>
             </el-form-item>
             <el-form-item label="运动步数：" required>
-              <el-input v-model="formData.step_number" style="width:80px"/>  步可兑换一个积分
+              <el-input v-model="formData.step_number" style="width:80px"/>  步可兑换1个积分
               <p style="color:#aaaaaa;font-size:12px;margin-left:9%;">注:一个积分可兑换0.01元</p>
             </el-form-item>
-            <el-form-item label="可兑换积分：" required>
-              <el-input v-model="formData.integral" style="width:301px"/>
-            </el-form-item>
+            <!--暂时去掉了-->
+            <!--<el-form-item label="可兑换积分：" required>-->
+              <!--<el-input v-model="formData.integral" style="width:301px"/>-->
+            <!--</el-form-item>-->
             <!--<el-form-item label="能否与储值卡同用：" required>
               <template>
                 <el-radio v-model="formData.is_value_card" :label="1">能同时使用</el-radio>
@@ -88,67 +89,21 @@
           </el-form>
         </div>
         <!-- 用户积分详情表格 -->
-        <el-table
-          id="#exportexcel"
-          ref="multipleTable"
-          :xs="20"
-          :data="tableData3"
-          :row-class-name="tableRoWClassName"
-          tooltip-effect="dark"
-          border
-          style="width: 88%"
-          @selection-change="handleSelectionChange">
-          <el-table-column
-            type="selection"
-            align="center"/>
-          <el-table-column
-            prop="name"
-            label="用户ID"
-            align="center"/>
-          <el-table-column
-            prop="name"
-            label="微信昵称"
-            align="center"/>
-          <el-table-column
-            prop="name"
-            align="center"
-            width="130"
-            label="微信昵称"
-            show-overflow-tooltip/>
-          <el-table-column
-            prop="phone"
-            align="center"
-            label="姓名"
-            show-overflow-tooltip/>
-          <el-table-column
-            prop="address"
-            align="center"
-            label="电话"
-            show-overflow-tooltip/>
-          <el-table-column
-            prop="address"
-            align="center"
-            label="运动步数"
-            show-overflow-tooltip/>
-          <el-table-column
-            prop="phone"
-            align="center"
-            label="兑换积分"
-            show-overflow-tooltip/>
-          <el-table-column
-            prop="phone"
-            align="center"
-            label="已使用积分"/>
-          <el-table-column
-            prop="phone"
-            align="center"
-            label="剩余积分"
-            show-overflow-tooltip/>
-          <el-table-column
-            align="center"
-            label="操作"
-            show-overflow-tooltip>
-            <el-button>清空</el-button>
+        <el-table id="#exportexcel" ref="multipleTable" :xs="20" :data="runRecordList" :row-class-name="tableRoWClassName" tooltip-effect="dark" border style="width: 88%" @selection-change="handleSelectionChange">
+          <el-table-column type="selection" align="center"/>
+          <el-table-column prop="user_id" label="用户ID" align="center"/>
+          <el-table-column prop="user_wechat_avatar" label="微信头像" align="center"/>
+          <el-table-column prop="user_wechat_name" align="center" width="130" label="微信昵称" show-overflow-tooltip/>
+          <el-table-column prop="user_name" align="center" label="姓名" show-overflow-tooltip/>
+          <el-table-column prop="address" align="center" label="电话" show-overflow-tooltip/>
+          <el-table-column prop="address" align="center" label="运动步数" show-overflow-tooltip/>
+          <el-table-column prop="phone" align="center" label="兑换积分" show-overflow-tooltip/>
+          <el-table-column prop="phone" align="center" label="已使用积分"/>
+          <el-table-column prop="phone" align="center" label="剩余积分" show-overflow-tooltip/>
+          <el-table-column align="center" label="操作" show-overflow-tooltip>
+            <template  slot-scope="scope">
+              <el-button>清空</el-button>
+            </template>
           </el-table-column>
         </el-table>
       </el-tab-pane>
@@ -160,21 +115,19 @@ import FileSaver from 'file-saver'
 import XLSX from 'xlsx'
 import tinymce from '@/components/tinymce'
 import { getToken } from '@/utils/auth'
-import { addmotor, motorlist, updatemotorlist } from '@/api/motor'
+import { addmotor, motorlist, updatemotorlist, getRecordList } from '@/api/motor'
 export default {
   components: { tinymce },
   data() {
     return {
       formData: {
+        id:'',
         banner_img: '',
         step_number: '',
         integral: '',
         is_value_card: '',
         is_coupon: '',
-        integralList: [
-          { consumption_amount: '',
-            using_integral: '' }
-        ],
+        integralList: [],
         explain: ''
       },
       consumption_amount: '',
@@ -191,42 +144,7 @@ export default {
       valuecard: '',
       // 优惠券初始值
       coupon: '',
-      tableData3: [{
-        date: '2016-05-03',
-        name: '王小虎',
-        address: '河北省石家庄裕华区翟营南大街新界南楼801我真的真的很长很长',
-        phone: '18888888888'
-      }, {
-        date: '2016-05-02',
-        name: '王小虎',
-        address: '上海市普陀区金沙江路 大大 弄',
-        phone: '18888888888'
-      }, {
-        date: '2016-05-04',
-        name: '王小虎',
-        address: '上海市普陀区金沙江路 1518 弄',
-        phone: '18888888888'
-      }, {
-        date: '2016-05-01',
-        name: '王小虎',
-        address: '上海市普陀区金沙江路 1518 弄',
-        phone: '18888888888'
-      }, {
-        date: '2016-05-08',
-        name: '王小虎',
-        address: '上海市普陀区金沙江路 1518 弄',
-        phone: '18888888888'
-      }, {
-        date: '2016-05-06',
-        name: '王小虎',
-        address: '上海市普陀区金沙江路 1518 弄',
-        phone: '18888888888'
-      }, {
-        date: '2016-05-07',
-        name: '王小虎',
-        address: '上海市普陀区金沙江路 1518 弄',
-        phone: '18888888888'
-      }],
+      runRecordList: [],//积分详情列表
       multipleSelection: [],
       list: false, // 设置判断使用
       richtext: ''
@@ -237,18 +155,35 @@ export default {
     this.getlist()
   },
   methods: {
-    // 获取列表
+    //获取用户运动积分详情
+    async runRecordList(){
+       try{
+          await getRecordList().then(res=>{
+             this.runRecordList = res.data
+          })
+       }catch(err){
+          console.log(err)
+       }
+    },
+    // 获取运动积分
     async getlist() {
       try {
         this.richtext = ''
-        const res = await motorlist()
-        console.log(res)
-        this.formData = res.data[0]
-        this.content = res.data[0].explain
-        // 进行判断
-        this.list = true
-        // 把内容注入到富文本当中
-        this.$refs.box.setContent(this.content)
+        await motorlist().then(res=>{
+          if(res){
+            console.log(res)
+            this.formData.explain = res.explain
+            this.formData.id = res.id
+            this.formData.banner_img= res.banner_img
+            this.content = res.explain
+            this.formData.integralList = res.integral_list
+            this.formData.step_number= res.every_step_exchange_integral
+            // 进行判断  判断是修改还是添加
+            this.list = true
+            // 把内容注入到富文本当中
+            this.$refs.box.setContent(this.content)
+          }
+        })
       } catch (err) {
         console.log(err)
       }
@@ -256,8 +191,7 @@ export default {
     // 添加提交
     async subRun(data) {
       const banner_img = data.banner_img
-      console.log(banner_img)
-      const step_number = data.step_number
+      const every_step_exchange_integral = data.step_number
       const integral = data.integral
       const is_value_card = data.is_value_card
       const is_coupon = data.is_coupon
@@ -265,35 +199,32 @@ export default {
       // 获取富文本内容
       const content = this.content
       try {
-        const res = await addmotor(banner_img, step_number, integral, is_value_card, is_coupon, integralList, content)
-        console.log('添加提交', res)
-        this.router.go(0)
-        console.log(666)
+        await addmotor(banner_img, every_step_exchange_integral, integral, is_value_card, is_coupon, integralList, content).then(res=>{
+          this.$message({
+            message: '添加成功',
+            type: 'success'
+          })
+        })
       } catch (err) {
         console.log(err)
       }
     },
     // 修改提交
     async updateRun(data) {
-      console.log(111)
-      const id = this.formData.id
       const banner_img = data.banner_img
-      const step_number = data.step_number
-      const integral = data.integral
+      const every_step_exchange_integral = data.step_number
       const is_value_card = data.is_value_card
       const is_coupon = data.is_coupon
-      const integralList = JSON.stringify(this.formData.integralList)
-      const content = this.content
+      const integral_list_json = this.formData.integralList
+      const explain = this.content
       try {
-        const res = await updatemotorlist(id, banner_img, step_number, integral, is_value_card, is_coupon, integralList, content)
-        console.log('res', res)
-        console.log(888)
-        if (res.status === 201) {
-          this.$message({
-            message: '修改成功',
-            type: 'success'
-          })
-        }
+         await updatemotorlist( banner_img, every_step_exchange_integral, is_value_card, is_coupon, integral_list_json, explain).then(res=>{
+             this.$message({
+               message: '修改成功',
+               type: 'success'
+             })
+
+        })
       } catch (err) {
         console.log(err)
       }
@@ -308,11 +239,11 @@ export default {
     // 删除最低消费
     del(index, row) {
       this.formData.integralList.splice(index, 1)
+      console.log(this.formData.integralList)
     },
     // 上传图片成功后
     handleAvatarSuccess(res) {
       this.formData.banner_img = res.path
-      console.log('图片路径', this.formData.banner_img)
     },
     // 图片上传获取到token
     GetToken() {
@@ -332,7 +263,6 @@ export default {
         return 'warning-row'
       }
     },
-    // 会员列表的表格全选操作
     toggleviplist(rows) {
       if (rows) {
         rows.forEach(row => {
@@ -388,11 +318,11 @@ export default {
 }
 /* tab标签活动选项 */
 .marketing-card .el-tabs__item.is-active{
-  background:#FE4643;
-  color:#000;
+  background:#67c23a;
+  color:#fff;
 }
 .marketing-card .el-tabs__item:hover{
-  color:#409EFF;
+  color:#fff;
 }
 /* tab标签初始化样式 */
 .marketing-card .el-tabs__item{

@@ -47,7 +47,8 @@ export default {
       headers: {
         Authorization: ''
       },
-      imagesArray: []
+      imagesArray: [],
+      fileArr:''
     }
   },
   mounted: function() {
@@ -63,19 +64,22 @@ export default {
       if (!this.checkAllSuccess()) {
         this.$message('请等待所有图片上传成功 或 出现了网络问题，请刷新页面重新上传！')
         return
+      }else{
+        for(let i=0;i<this.fileArr.length;i++){
+            this.imagesArray.push(this.fileArr[i].response.path)
+        }
+        this.$emit('successCBK', this.imagesArray)
+        // 原数组置空 以及显示列表为空
+        this.imagesArray = []
+        this.listObj = {}
+        this.fileList = []
+        // 关闭dialog
+        this.dialogVisible = false
       }
-      this.$emit('successCBK', this.imagesArray)
-      // 原数组置空 以及显示列表为空
-      this.imagesArray = []
-      this.listObj = {}
-      this.fileList = []
-      // 关闭dialog
-      this.dialogVisible = false
     },
     // 成功的钩子
-    handleSuccess(response) {
-      this.imagesArray.unshift(response.path)
-      console.log(this.imagesArray)
+    handleSuccess(response, file, fileList) {
+      this.fileArr = fileList  //正确的顺序
     },
     // 移除钩子
     handleRemove(file) {
@@ -85,6 +89,7 @@ export default {
     // 上传前钩子
     beforeUpload(file) {
       this.dirname['images'] = file
+      //console.log(file)  正确的顺序
     },
     GetToken() {
       const res = getToken()

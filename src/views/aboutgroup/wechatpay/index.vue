@@ -3,6 +3,10 @@
   <div class="pay_dad">
     <!--input框-->
     <div class="pay_one">
+      <div class="pay_dad_label">小程序名称：</div>
+      <el-input v-model="miniprogram_name" class="pay_in"/>
+    </div>
+    <div class="pay_one">
       <div class="pay_dad_label">收款方名称：</div>
       <el-input v-model="payment_name" class="pay_in"/>
     </div>
@@ -184,7 +188,7 @@ export default{
     async subwechat() {
       try {
         // eslint-disable-next-line no-unused-vars
-        const res = await addwechat(this.payment_name, this.appid, this.appsecret, this.mch_id, this.key, this.apiclient_cert, this.apiclient_key, this.payment_agreement)
+        const res = await addwechat(this.miniprogram_name, this.payment_name, this.appid, this.appsecret, this.mch_id, this.key, this.apiclient_cert, this.apiclient_key, this.payment_agreement)
       } catch (err) {
         console.log(err)
       }

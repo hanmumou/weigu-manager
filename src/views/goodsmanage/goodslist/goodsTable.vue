@@ -13,7 +13,7 @@
 					<el-form-item label="产品规格：" v-if="props.row.goods_sku_status">
 						<!--有规格时显示规格-->
 						<!--展示当前行规格的表格-->
-						<el-table :data="specData" border class="tableWidth" size="mini" :span-method="objectSpanMethod">
+						<el-table :data="specData" border class="tableWidth" size="mini" :span-method="objectSpanMethod" v-loading="loading">
 							<!--:span-method="objectSpanMethod"-->
 							<template v-for="col in cols">
 								<el-table-column :label="col.label" :prop="col.prop"></el-table-column>
@@ -46,16 +46,8 @@
 		<el-table-column label="产品名称" prop="name" />
 		<el-table-column label="产品分类" prop="category_name[0].name" />
 		<el-table-column label="发布时间" prop="start_at" />
-		<!--<el-table-column label="展示区域" prop="show_region_type">
-			<template slot-scope="scope">
-				<div v-if="scope.row.show_region_type == 1">
-					<span>全国</span>
-				</div>
-				<div v-if="scope.row.show_region_type == 0">
-					<span>指定区域</span>
-				</div>
-			</template>
-		</el-table-column>-->
+		<el-table-column label="展示区域" prop="goods_show_region"></el-table-column>
+    <el-table-column label="展示团长" prop="goods_show_commander" /><!--后来加的展示团长-->
 		<el-table-column label="限购数量" prop="goods_limit_stock">
 			<template slot-scope="scope">
 				<el-input v-model="scope.row.goods_limit_stock" class="ipt" />
@@ -63,7 +55,7 @@
 		</el-table-column>
 		<el-table-column label="虚拟销量" prop="virtual_sales_num">
 			<template slot-scope="scope">
-				<el-input v-model="scope.row.virtual_sales_num" class="ipt" />
+				<el-input v-model="scope.row.virtual_sales_num" class="ipt" @change="changeNum(scope.row.id,scope.row.virtual_sales_num)" />
 			</template>
 		</el-table-column>
 		<el-table-column label="排序" prop="sort">
@@ -76,7 +68,7 @@
 				<div v-if="scope.row.is_index == true">
 					<el-button size="mini" @click="changeIndex(scope.row)">推荐</el-button>
 				</div>
-				<div v-else :key="index">
+				<div v-else>
 					<el-button size="mini" @click="changeIndex(scope.row)">取消</el-button>
 				</div>
 			</template>
@@ -84,24 +76,24 @@
 		<el-table-column label="销售记录" prop="is_sales_record">
 			<template slot-scope="scope">
 				<div v-if="scope.row.is_sales_record == 1">
-					<el-button size="mini" @click="submit(scope.$index, scope.row)">开启中</el-button>
+					<el-button size="mini" @click="submit(scope.row)">开启中</el-button>
 				</div>
-				<div v-else :key="index">
-					<el-button size="mini" @click="submit(scope.$index, scope.row)">关闭中</el-button>
+				<div v-else>
+					<el-button size="mini" @click="submit(scope.row)">关闭中</el-button>
 				</div>
 			</template>
 		</el-table-column>
 		<el-table-column label="操作" width="250px">
 			<template slot-scope="scope">
-				<el-button size="mini" @click="handleEdit(scope.$index, scope.row)">编辑</el-button>
-				<el-button size="mini" @click="saveStockPrice(scope.$index, scope.row)">保存</el-button>
+				<el-button size="mini" @click="handleEdit( scope.row)">编辑</el-button>
+				<el-button size="mini" @click="saveStockPrice(scope.row)">保存</el-button>
 				<el-button size="mini" type="danger" @click="handleDelete(scope.row)">删除</el-button>
 			</template>
 		</el-table-column>
 	</el-table>
 </template>
 <script>
-	import { changeTj, delGoods, getSpecList, editGoods, getSkuById, editPriceStock } from '@/api/goodslist'
+	import { changeTj, delGoods, getSpecList, editGoods, getSkuById, editPriceStock, updateVirtualNum } from '@/api/goodslist'
 	import {bus} from '@/main.js'
 	export default {
 		name: 'GoodsTable',
@@ -117,6 +109,7 @@
 		},
 		data() {
 			return {
+        loading:true,
 				cols: [], //规格数据  规格列
 				specData: [], //规格表格数据
 				namesArr: [], // 一级要合并数组 [2,0,1,3,0,0] 代表第一二行合并,第三行不变,第四五六行合并,0代表原本的那一行被合并,因此这个列被消除
@@ -146,11 +139,23 @@
 			async changeIndex(val) {
 				try {
 					await changeTj(val.id)
-					this.$emit('ee')
+          this.$emit('headCallBack', 'ifShow') //子组件向父组件传递数据
+          this.$message.success('修改成功')
 				} catch(err) {
 					console.log(err)
 				}
 			},
+      //更新虚拟销量
+      async changeNum(id,num){
+           try{
+              await updateVirtualNum(id,num ).then(res=>{
+                this.$message.success('修改成功')
+                this.$emit('headCallBack', 'updateVirtaulNum') //子组件向父组件传递数据
+              })
+           }catch(err){
+             console.log(err)
+           }
+      },
 			// 表格合并
 			objectSpanMethod({
 				row,
@@ -208,11 +213,11 @@
 					}
 				}
 			},
-			// 删除当前行	
+			// 删除当前行
 			async handleDelete(row) {
-				const data = {
+				const data = [{
 					'goods_id': row.id + ''
-				}
+				}]
 				try {
 					await delGoods(JSON.stringify(data)).then(res => {
 						this.$message({
@@ -226,7 +231,7 @@
 				}
 			},
 			// 编辑
-			handleEdit(index, row) {
+			handleEdit(row) {
 				// 跳转页面
 				this.$router.push({
 					path: '/goodsmanage/exportgoods',
@@ -239,8 +244,8 @@
 			changeSel(sel) {
 				bus.$emit('clearGoods',sel)
 			},
-			// 提交当前行
-			async submit(index, row) {
+			// 销售记录  开启 关闭
+			async submit(row) {
 				const detail_picture = []
 				var is_sales_record = 0
 				for(let i = 0; i < row.detail_picture.length; i++) {
@@ -261,17 +266,20 @@
 				try {
 					await editGoods(row.id, row.category_id, row.show_region_type, JSON.stringify(show_region), row.name, row.introduce, row.main_picture, JSON.stringify(detail_picture),
 						row.video_url, row.cost_price, row.original_price, row.price, Number(row.goods_sku_status), JSON.stringify(row.goods_sku), row.start_at,
-						row.end_at, row.delivery_at, row.goods_limit_stock, row.commission, row.goods_type, row.details, row.sort, is_sales_record)
+						row.end_at, row.delivery_at, row.goods_limit_stock, row.commission, row.goods_type, row.details, row.sort, is_sales_record).then(res=>{
+						  this.$message.success('修改成功')
+              this.$emit('headCallBack', 'openrecord') //子组件向父组件传递数据
+          })
 				} catch(err) {
 					console.log(err)
 				}
 			},
 			//点击保存  保存 当前商品规格和库存 笛卡尔积
-			async saveStockPrice(index, row) {
+			async saveStockPrice(row) {
 				if(row.goods_sku) { //有规格
 					//向后台提交笛卡尔积表格
 					let cdata = []
-					for(var i = 0; i < this.specData.length; i++) {
+					for(let i = 0; i < this.specData.length; i++) {
 						let cobj = {
 							'id': '',
 							'price': '',
@@ -327,6 +335,7 @@
 					try {
 						await getSkuById(id).then(res => {
 							let tdata = res.data
+              this.loading = false
 							//分情况讨论
 							if(skus.length == 1) { //只有一个一级规格
 								this.cols = [{
@@ -429,11 +438,11 @@
 	.table-expand .el-form-item {
 		width: 100%;
 	}
-	
+
 	.tableWidth {
 		width: 500px;
 	}
-	
+
 	.submit {
 		margin-left: 120px;
 	}

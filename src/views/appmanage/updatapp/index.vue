@@ -13,7 +13,7 @@
         <!-- 更新版本按钮 -->
         <el-row style="marginTop:26px;">
           <el-col :span="6" :offset="9" class="updateBtn">
-            <el-button type="success">去升级小程序</el-button>
+            <el-button type="success" @click="updateMiniPro">去升级小程序</el-button>
           </el-col>
         </el-row>
       </div>
@@ -41,6 +41,41 @@ export default {
     }
   },
   methods: {
+    //检查小程序是否有最新版本
+    checkHaveNew(){
+      var _this = this
+       $.ajax({
+         headers:{
+           'Authorization':'Bearer'+ ' ' +  _this.$store.getters.token
+         },
+         url:'https://suokekj.com/api/api/wechat/authorize/mini-program/new-version',
+         type:'POST',
+         success:function(res){
+           if(res.have_new_version === 'false'){//表示没有新版本
+              _this.status = 0
+           }else if(res.have_new_version === 'true'){//表示有新版本
+               _this.status = 1
+           }
+         }
+       })
+    },
+    //升级小程序
+    updateMiniPro(){
+      var _this = this
+       $.ajax({
+         headers:{
+           'Authorization':'Bearer'+ ' ' +  _this.$store.getters.token
+         },
+         url:'https://suokekj.com/api/api/wechat/authorize/mini-program/upgrade',
+         type:'POST',
+          success:function(res){
+             _this.$message.success('小程序升级成功, 请耐心等待审核结果!')
+          }
+       })
+    }
+  },
+  mounted(){
+      this.checkHaveNew()
   }
 }
 </script>

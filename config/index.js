@@ -11,7 +11,7 @@ module.exports = {
     assetsPublicPath: '/',
     proxyTable: {
       '/API': {
-        target: 'https://community.suokekj.com',
+        target: 'https://suokekj.com/community-api/',//https://community.suokekj.com
         secure: true,
         changeOrigin: true,
         ws: true,

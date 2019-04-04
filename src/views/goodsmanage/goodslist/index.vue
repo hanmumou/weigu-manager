@@ -5,7 +5,7 @@
 				<el-tabs v-model="activeName" type="card" @tab-click="changeTab">
 					<el-tab-pane label="未上架产品" name="first">
 						<div class="first_form">
-							<el-form ref="firstForm" :inline="true" :model="firstForm">
+							<el-form :inline="true">
 								<el-form-item label="">
 									<el-checkbox v-model="checked" label="全选" name="type" />
 								</el-form-item>
@@ -22,63 +22,74 @@
 									<el-button type="primary" @click="moreUp">批量上架</el-button>
 								</el-form-item>
 								<el-form-item>
-									<el-button type="danger" @click="delForever">永久删除</el-button>
+									<el-button type="danger" @click="delForever">批量删除</el-button>
 								</el-form-item>
-								<el-form-item label="产品ID：">
-									<el-input v-model="firstForm.id" />
-								</el-form-item>
-								<el-form-item label="产品分类：">
-									<el-select v-model="firstForm.category_id" placeholder="请选择">
-										<el-option v-for="item in classifyOptions" :key="item.id" :label="item.name" :value="item.id" />
-									</el-select>
-								</el-form-item>
-								<el-form-item label="产品名称：">
-									<el-input v-model="firstForm.name" />
-								</el-form-item>
-								<el-form-item label="展示区域：">
-									<el-select v-model="provinceId" @change="selChange">
-										<el-option label="全国" value="" />
-										<el-option v-for="item in regionOptions" :key="item.province_id" :label="item.name" :value="item.province_id" />
-									</el-select>
-									<el-select v-model="firstForm.show_region" placeholder="市" class="area">
-										<el-option v-for="item in cityList" :key="item.city_id" :label="item.name" :value="item.city_id" />
-									</el-select>
-								</el-form-item>
-								<el-form-item label="发布时间：">
-									<el-date-picker v-model="firstForm.created_at" type="date" placeholder="请选择发布时间" />
-								</el-form-item>
-								<!-- <el-form-item label="上下架状态：">
-                  <el-select v-model="firstForm.type">
-                    <el-option value="0" label="全部状态"/>
-                    <el-option value="1" label="下架状态"/>
-                    <el-option value="2" label="上架状态"/>
-                  </el-select>
-                </el-form-item> -->
-								<el-form-item>
-									<el-button type="primary" @click="submitForm('firstForm')">搜索</el-button>
-								</el-form-item>
-								<el-form-item>
-									<el-button type="text" @click="resetForm('firstForm')">清空搜索</el-button>
-								</el-form-item>
-							</el-form>
-						</div>
-						<GoodsTable :table-data="notShevelsGoods" :check-all.sync="checked" @headCallBack="headCall" @clearGoods="cleargoods"/>
+              </el-form>
+            </div>
+              <!--检索行-->
+              <div style="background:#4F5E70;padding-top:10px;padding-left:10px;">
+                <el-form :inline="true">
+                  <el-form-item label="产品ID：">
+                    <el-input v-model="firstForm.id" style="width:80px;"/>
+                  </el-form-item>
+                  <el-form-item label="产品分类：">
+                    <el-select v-model="firstForm.category_id" placeholder="请选择" style="width:150px;">
+                      <el-option v-for="item in classifyOptions" :key="item.id" :label="item.name" :value="item.id" />
+                    </el-select>
+                  </el-form-item>
+                  <el-form-item label="产品名称：">
+                    <el-input v-model="firstForm.name" />
+                  </el-form-item>
+                  <el-form-item label="展示区域：">
+                    <el-select v-model="provinceId" @change="selChange"  style="width:120px;">
+                      <el-option label="全国" value="" />
+                      <el-option v-for="item in regionOptions" :key="item.province_id" :label="item.name" :value="item.province_id" />
+                    </el-select>
+                    <el-select v-model="firstForm.show_region" placeholder="市" class="area"  style="width:120px;">
+                      <el-option v-for="item in cityList" :key="item.city_id" :label="item.name" :value="item.city_id" />
+                    </el-select>
+                  </el-form-item>
+                  <el-form-item label="发布时间：">
+                    <el-date-picker v-model="firstForm.created_at" type="date" placeholder="请选择发布时间" />
+                  </el-form-item>
+                  <el-form-item label="开始时间：">
+                    <el-date-picker v-model="firstForm.start_time" type="date" placeholder="选择开始时间" />
+                  </el-form-item>
+                  <el-form-item label="结束时间：">
+                    <el-date-picker v-model="firstForm.end_time" type="date" placeholder="选择结束时间" />
+                  </el-form-item>
+                  <!-- <el-form-item label="上下架状态：">
+                    <el-select v-model="firstForm.type">
+                      <el-option value="0" label="全部状态"/>
+                      <el-option value="1" label="下架状态"/>
+                      <el-option value="2" label="上架状态"/>
+                    </el-select>
+                  </el-form-item> -->
+                  <el-form-item>
+                    <el-button type="primary" @click="submitForm('firstForm')">搜索</el-button>
+                  </el-form-item>
+                  <el-form-item>
+                    <el-button type="text" @click="resetForm('firstForm')">清空搜索</el-button>
+                  </el-form-item>
+                </el-form>
+              </div>
+						<GoodsTable :table-data="notShevelsGoods" :check-all.sync="checked" @headCallBack="headCall" @clearGoods="delForever"/>
 					</el-tab-pane>
-
+          <!--预售商品-->
 					<el-tab-pane label="预售中商品" name="second">
 						<div class="second_form">
-							<el-form ref="firstForm" :inline="true" :model="firstForm">
+							<el-form :inline="true" >
 								<el-form-item label="">
 									<el-checkbox v-model="checked" label="全选" name="type" />
 								</el-form-item>
 								<el-form-item label="开始时间：">
-									<el-date-picker v-model="firstForm.startTime" type="date" placeholder="选择开始时间" />
+									<el-date-picker v-model="firstForm.start_at" type="date" placeholder="选择开始时间" />
 								</el-form-item>
 								<el-form-item label="结束时间：">
-									<el-date-picker v-model="firstForm.overTime" type="date" placeholder="选择结束时间" />
+									<el-date-picker v-model="firstForm.end_at" type="date" placeholder="选择结束时间" />
 								</el-form-item>
 								<el-form-item label="配送时间：">
-									<el-date-picker v-model="firstForm.deliveryTime" type="date" placeholder="选择配送时间" />
+									<el-date-picker v-model="firstForm.delivery_at" type="date" placeholder="选择配送时间" />
 								</el-form-item>
 								<el-form-item>
 									<el-button type="primary" @click="moreUp">批量上架</el-button>
@@ -89,56 +100,67 @@
 								<el-form-item>
 									<el-button type="danger" @click="delForever">永久删除</el-button>
 								</el-form-item>
-								<el-form-item label="产品ID：">
-									<el-input v-model="firstForm.specId" />
-								</el-form-item>
-								<el-form-item label="产品分类：">
-									<el-select v-model="firstForm.classify" placeholder="请选择">
-										<el-option v-for="item in classifyOptions" :key="item.val" :label="item.label" :value="item.val" />
-									</el-select>
-								</el-form-item>
-								<el-form-item label="产品名称：">
-									<el-input v-model="firstForm.name" />
-								</el-form-item>
-								<el-form-item label="展示区域：">
-									<el-select v-model="firstForm.region">
-										<el-option v-for="item in regionOptions" :key="item.val" :label="item.label" :value="item.val" />
-									</el-select>
-								</el-form-item>
-								<el-form-item label="发布时间：">
-									<el-date-picker v-model="firstForm.releaseTime" type="date" placeholder="请选择发布时间" />
-								</el-form-item>
-								<el-form-item label="上下架状态：">
-									<el-select v-model="firstForm.type">
-										<el-option value="0" label="全部状态" />
-										<el-option value="1" label="下架状态" />
-										<el-option value="2" label="上架状态" />
-									</el-select>
-								</el-form-item>
-								<el-form-item>
-									<el-button type="primary" @click="submitForm('firstForm')">搜索</el-button>
-								</el-form-item>
-								<el-form-item>
-									<el-button type="text" @click="resetForm('firstForm')">清空搜索</el-button>
-								</el-form-item>
-							</el-form>
-						</div>
-						<GoodsTable :table-data="advanceSale" :check-all.sync="checked" @headCallBack="headCall" @clearGoods="cleargoods"/>
+              </el-form>
+            </div>
+              <div  style="background:#4F5E70;padding-top:10px;padding-left:10px;">
+                <el-form :inline="true">
+                  <el-form-item label="产品ID：">
+                    <el-input v-model="firstForm.specId" />
+                  </el-form-item>
+                  <el-form-item label="产品分类：">
+                    <el-select v-model="firstForm.classify" placeholder="请选择">
+                      <el-option v-for="item in classifyOptions" :key="item.val" :label="item.label" :value="item.val" />
+                    </el-select>
+                  </el-form-item>
+                  <el-form-item label="产品名称：">
+                    <el-input v-model="firstForm.name" />
+                  </el-form-item>
+                  <el-form-item label="展示区域：">
+                    <el-select v-model="firstForm.region">
+                      <el-option v-for="item in regionOptions" :key="item.val" :label="item.label" :value="item.val" />
+                    </el-select>
+                  </el-form-item>
+                  <el-form-item label="发布时间：">
+                    <el-date-picker v-model="firstForm.releaseTime" type="date" placeholder="请选择发布时间" />
+                  </el-form-item>
+                  <el-form-item label="开始时间：">
+                    <el-date-picker v-model="firstForm.start_time" type="date" placeholder="选择开始时间" />
+                  </el-form-item>
+                  <el-form-item label="结束时间：">
+                    <el-date-picker v-model="firstForm.end_time" type="date" placeholder="选择结束时间" />
+                  </el-form-item>
+                  <el-form-item label="上下架状态：">
+                    <el-select v-model="firstForm.type">
+                      <el-option value="0" label="全部状态" />
+                      <el-option value="1" label="下架状态" />
+                      <el-option value="2" label="上架状态" />
+                    </el-select>
+                  </el-form-item>
+                  <el-form-item>
+                    <el-button type="primary" @click="submitForm('firstForm')">搜索</el-button>
+                  </el-form-item>
+                  <el-form-item>
+                    <el-button type="text" @click="resetForm('firstForm')">清空搜索</el-button>
+                  </el-form-item>
+                </el-form>
+              </div>
+						<GoodsTable :table-data="advanceSale" :check-all.sync="checked" @headCallBack="headCall" @clearGoods="delForever"/>
 					</el-tab-pane>
+          <!--已上架商品-->
 					<el-tab-pane label="已上架商品" name="three">
 						<div class="three_form">
-							<el-form ref="firstForm" :inline="true" :model="firstForm">
+							<el-form  :inline="true">
 								<el-form-item label="">
 									<el-checkbox v-model="checked" label="全选" name="type" />
 								</el-form-item>
 								<el-form-item label="开始时间：">
-									<el-date-picker v-model="firstForm.startTime" type="date" placeholder="选择开始时间" />
-								</el-form-item>
-								<el-form-item label="结束时间：">
-									<el-date-picker v-model="firstForm.overTime" type="date" placeholder="选择结束时间" />
-								</el-form-item>
+                <el-date-picker v-model="firstForm.start_at" type="date" placeholder="选择开始时间" />
+              </el-form-item>
+                <el-form-item label="结束时间：">
+                  <el-date-picker v-model="firstForm.end_at" type="date" placeholder="选择结束时间" />
+                </el-form-item>
 								<el-form-item label="配送时间：">
-									<el-date-picker v-model="firstForm.deliveryTime" type="date" placeholder="选择配送时间" />
+									<el-date-picker v-model="firstForm.delivery_at" type="date" placeholder="选择配送时间" />
 								</el-form-item>
 								<el-form-item>
 									<el-button type="primary" @click="moreUp">批量上架</el-button>
@@ -149,41 +171,51 @@
 								<el-form-item>
 									<el-button type="danger" @click="delForever">永久删除</el-button>
 								</el-form-item>
-								<el-form-item label="产品ID：">
-									<el-input v-model="firstForm.specId" />
-								</el-form-item>
-								<el-form-item label="产品分类：">
-									<el-select v-model="firstForm.classify" placeholder="请选择">
-										<el-option v-for="item in classifyOptions" :key="item.val" :label="item.label" :value="item.val" />
-									</el-select>
-								</el-form-item>
-								<el-form-item label="产品名称：">
-									<el-input v-model="firstForm.name" />
-								</el-form-item>
-								<el-form-item label="展示区域：">
-									<el-select v-model="firstForm.region">
-										<el-option v-for="item in regionOptions" :key="item.val" :label="item.label" :value="item.val" />
-									</el-select>
-								</el-form-item>
-								<el-form-item label="发布时间：">
-									<el-date-picker v-model="firstForm.releaseTime" type="date" placeholder="请选择发布时间" />
-								</el-form-item>
-								<el-form-item label="上下架状态：">
-									<el-select v-model="firstForm.type">
-										<el-option value="0" label="全部状态" />
-										<el-option value="1" label="下架状态" />
-										<el-option value="2" label="上架状态" />
-									</el-select>
-								</el-form-item>
-								<el-form-item>
-									<el-button type="primary" @click="submitForm('firstForm')">搜索</el-button>
-								</el-form-item>
-								<el-form-item>
-									<el-button type="text" @click="resetForm('firstForm')">清空搜索</el-button>
-								</el-form-item>
-							</el-form>
-						</div>
-						<GoodsTable :table-data="onShelvesGoods" :check-all.sync="checked" @headCallBack="headCall" @clearGoods="cleargoods"/>
+              </el-form>
+            </div>
+            <div style="background:#4F5E70;padding-top:10px;padding-left:10px;">
+              <el-form  :inline="true">
+                <el-form-item label="产品ID：">
+                  <el-input v-model="firstForm.specId" />
+                </el-form-item>
+                <el-form-item label="产品分类：">
+                  <el-select v-model="firstForm.classify" placeholder="请选择">
+                    <el-option v-for="item in classifyOptions" :key="item.val" :label="item.label" :value="item.val" />
+                  </el-select>
+                </el-form-item>
+                <el-form-item label="产品名称：">
+                  <el-input v-model="firstForm.name" />
+                </el-form-item>
+                <el-form-item label="展示区域：">
+                  <el-select v-model="firstForm.region">
+                    <el-option v-for="item in regionOptions" :key="item.val" :label="item.label" :value="item.val" />
+                  </el-select>
+                </el-form-item>
+                <el-form-item label="发布时间：">
+                  <el-date-picker v-model="firstForm.releaseTime" type="date" placeholder="请选择发布时间" />
+                </el-form-item>
+                <el-form-item label="开始时间：">
+                  <el-date-picker v-model="firstForm.start_time" type="date" placeholder="选择开始时间" />
+                </el-form-item>
+                <el-form-item label="结束时间：">
+                  <el-date-picker v-model="firstForm.end_time" type="date" placeholder="选择结束时间" />
+                </el-form-item>
+                <el-form-item label="上下架状态：">
+                  <el-select v-model="firstForm.type">
+                    <el-option value="0" label="全部状态" />
+                    <el-option value="1" label="下架状态" />
+                    <el-option value="2" label="上架状态" />
+                  </el-select>
+                </el-form-item>
+                <el-form-item>
+                  <el-button type="primary" @click="submitForm('firstForm')">搜索</el-button>
+                </el-form-item>
+                <el-form-item>
+                  <el-button type="text" @click="resetForm('firstForm')">清空搜索</el-button>
+                </el-form-item>
+              </el-form>
+            </div>
+						<GoodsTable :table-data="onShelvesGoods" :check-all.sync="checked" @headCallBack="headCall" @clearGoods="delForever"/>
 					</el-tab-pane>
 				</el-tabs>
 				<el-button type="primary">返回</el-button>
@@ -212,6 +244,8 @@
 				firstForm: {
 					start_at: '',
 					end_at: '',
+          start_time: '',
+          end_time: '',
 					delivery_at: '',
 					id: '',
 					category_id: '',
@@ -243,7 +277,6 @@
 		},
 		created:function(){
 			bus.$on('clearGoods',(sel)=>{
-					console.log(sel)
 					this.sels=sel
 		    })
 		},
@@ -262,7 +295,6 @@
 					this.goods_status = 1
 				} else if(tab.name == 'second') {
 					this.goods_status = 2
-					console.log(this.advanceSale)
 				} else if(tab.name == 'three') {
 					this.goods_status = 0
 				}
@@ -271,10 +303,46 @@
 						'goods_status': this.goods_status
 					})
 					if(this.goods_status == 1) {
+            for(let i=0;i<res.data.length;i++){
+              var areaStr = ''
+              var comStr = ''
+              for(let akey in res.data[i].goods_show_region){
+                areaStr += res.data[i].goods_show_region[akey] + ','
+              }
+              for(let ckey in res.data[i].goods_show_commander){
+                comStr += res.data[i].goods_show_commander[ckey] + ','
+              }
+              res.data[i].goods_show_region = areaStr
+              res.data[i].goods_show_commander = comStr
+            }
 						this.notShevelsGoods = res.data
 					} else if(this.goods_status == 2) {
+            for(let i=0;i<res.data.length;i++){
+              var areaStr = ''
+              var comStr = ''
+              for(let akey in res.data[i].goods_show_region){
+                areaStr += res.data[i].goods_show_region[akey] + ','
+              }
+              for(let ckey in res.data[i].goods_show_commander){
+                comStr += res.data[i].goods_show_commander[ckey] + ','
+              }
+              res.data[i].goods_show_region = areaStr
+              res.data[i].goods_show_commander = comStr
+            }
 						this.advanceSale = res.data
 					} else if(this.goods_status == 0) {
+            for(let i=0;i<res.data.length;i++){
+              var areaStr = ''
+              var comStr = ''
+              for(let akey in res.data[i].goods_show_region){
+                areaStr += res.data[i].goods_show_region[akey] + ','
+              }
+              for(let ckey in res.data[i].goods_show_commander){
+                comStr += res.data[i].goods_show_commander[ckey] + ','
+              }
+              res.data[i].goods_show_region = areaStr
+              res.data[i].goods_show_commander = comStr
+            }
 						this.onShelvesGoods = res.data
 					}
 				} catch(err) {
@@ -355,8 +423,8 @@
 					console.log(err)
 				}
 			},
-			// 接受子组件参数   在子组件中删除表格中的一行商品
-			async headCall(msg) { // 回调方法，接收子组件传的参数 
+			// 接受子组件参数   在子组件中删除表格中的一行商品  修改表格中的商品
+			async headCall(msg) { // 回调方法，接收子组件传的参数
 				//重新渲染页面
 				if(this.tabs) {
 					if(this.tabs.name == 'first') {
@@ -375,10 +443,46 @@
 						'goods_status': this.goods_status
 					})
 					if(this.goods_status == 1) {
+            for(let i=0;i<res.data.length;i++){
+              var areaStr = ''
+              var comStr = ''
+              for(let akey in res.data[i].goods_show_region){
+                areaStr += res.data[i].goods_show_region[akey] + ','
+              }
+              for(let ckey in res.data[i].goods_show_commander){
+                comStr += res.data[i].goods_show_commander[ckey] + ','
+              }
+              res.data[i].goods_show_region = areaStr
+              res.data[i].goods_show_commander = comStr
+            }
 						this.notShevelsGoods = res.data
 					} else if(this.goods_status == 2) {
+            for(let i=0;i<res.data.length;i++){
+              var areaStr = ''
+              var comStr = ''
+              for(let akey in res.data[i].goods_show_region){
+                areaStr += res.data[i].goods_show_region[akey] + ','
+              }
+              for(let ckey in res.data[i].goods_show_commander){
+                comStr += res.data[i].goods_show_commander[ckey] + ','
+              }
+              res.data[i].goods_show_region = areaStr
+              res.data[i].goods_show_commander = comStr
+            }
 						this.advanceSale = res.data
 					} else if(this.goods_status == 0) {
+            for(let i=0;i<res.data.length;i++){
+              var areaStr = ''
+              var comStr = ''
+              for(let akey in res.data[i].goods_show_region){
+                areaStr += res.data[i].goods_show_region[akey] + ','
+              }
+              for(let ckey in res.data[i].goods_show_commander){
+                comStr += res.data[i].goods_show_commander[ckey] + ','
+              }
+              res.data[i].goods_show_region = areaStr
+              res.data[i].goods_show_commander = comStr
+            }
 						this.onShelvesGoods = res.data
 					}
 				} catch(err) {
@@ -425,7 +529,7 @@
 							type: 'success'
 						})
 					})
-					
+
 				} catch(err) {
 					console.log(err)
 				}
@@ -433,12 +537,25 @@
 			// 列表
 			async goodsList(dev, data) {
 				try {
-					const res = await getGoodsList(this.currentPage, {
+					await getGoodsList(this.currentPage, {
 						'goods_status': this.goods_status
-					})
-					this.notShevelsGoods = res.data
-					this.pagesize = res.meta.pagination.per_page
-					this.total = res.meta.pagination.total
+					}).then(res=>{
+            for(let i=0;i<res.data.length;i++){
+              var areaStr = ''
+              var comStr = ''
+              for(let akey in res.data[i].goods_show_region){
+                areaStr += res.data[i].goods_show_region[akey] + ','
+              }
+              for(let ckey in res.data[i].goods_show_commander){
+                comStr += res.data[i].goods_show_commander[ckey] + ','
+              }
+              res.data[i].goods_show_region = areaStr
+              res.data[i].goods_show_commander = comStr
+            }
+            this.notShevelsGoods = res.data
+            this.pagesize = res.meta.pagination.per_page
+            this.total = res.meta.pagination.total
+          })
 				} catch(err) {
 					console.log(err)
 				}
@@ -453,11 +570,11 @@
 		height: 100%;
 		font-size: 14px;
 	}
-	
+
 	.goodslist-box .el-tabs__header {
 		margin: 0 !important;
 	}
-	
+
 	.goodslist-box .first_form,
 	.goodslist-box .second_form,
 	.goodslist-box .three_form {
@@ -465,72 +582,80 @@
 		background-color: rgb(48, 65, 86);
 		padding: 20px;
 	}
-	
+
 	.goodslist-box .first_form .el-form-item__label,
 	.goodslist-box .second_form .el-form-item__label,
 	.goodslist-box .three_form .el-form-item__label {
 		color: #fff;
 	}
+  .goodslist-box .el-form-item__label{
+    color: #fff;
+  }
 	/* .first_form .el-form-item__label{
   color: #ffffff !important;
 } */
-	
+
 	.goodslist-box .ipt {
 		width: 7em;
 	}
-	
+
 	.goodslist-box .tips {
 		font-size: 14px;
 		color: #999999;
 	}
-	
+
 	.goodslist-box #tab-first,
 	.goodslist-box #tab-second,
 	.goodslist-box #tab-three {
 		border-radius: 4px 4px 0 0;
 	}
-	
+
 	.goodslist-box #tab-first {
 		background: #a6a9ad;
 	}
-	
+
 	.goodslist-box #tab-second {
 		/*background: #67c23a;*/
 		background: #a6a9ad;
 	}
-	
+
 	.goodslist-box #tab-three {
 		background: #a6a9ad;
 	}
-	
+
 	.goodslist-box .el-checkbox__label {
 		color: #fff;
 	}
-	
+
 	.goodslist-box .el-select {
 		width: 185px;
 	}
-	
+
 	.goodslist-box .el-tabs__nav .is-active {
 		color: #fff;
 	}
-	
+
 	.goodslist-box .el-tabs--card>.el-tabs__header .el-tabs__item.is-active {
 		background: #67c23a !important;
 	}
-	
+
 	.goodslist-box .el-tabs__item {
 		color: #fff;
 	}
-	
+
 	.goodslist-box .el-tabs__item:hover {
 		/*color:#409EFF;*/
 	}
 	/* 分页设置 */
-	
+
 	.block {
 		text-align: center;
 		margin-top: 20px;
 		margin-right: 144px;
 	}
 </style>
+<!--<style lang="css" scoped>-->
+  <!--.el-form-item__label{-->
+    <!--color:#000 !important;-->
+  <!--}-->
+<!--</style>-->

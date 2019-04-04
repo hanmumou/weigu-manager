@@ -39,7 +39,8 @@
             align="center"
             label="操作">
             <template slot-scope="props">
-              <el-button size="mini" @click="deleteEdit(props.row)">删除</el-button>
+              <el-button size="mini" type="primary" @click="handleEdit(props.row)">编辑</el-button>
+              <el-button size="mini" type="info" @click="deleteEdit(props.row)">删除</el-button>
             </template>
           </el-table-column>
         </el-table>
@@ -70,12 +71,12 @@
             width="30%">
             <el-input v-model="title" placeholder="请输入广告标题"/>
           </el-form-item>
-          <el-form-item class="userdefined">
-            <tinymce v-model="content"/>
+          <el-form-item class="userdefined"><!--class="userdefined"-->
+            <tinymce ref="box" v-model="content" class="textarea"/>
           </el-form-item>
         </el-form>
         <span slot="footer" class="dialog-footer">
-          <el-button type="primary" @click="addEdit();">确认提交</el-button>
+          <el-button type="primary" @click="addEdit()">确认提交</el-button>
         </span>
       </el-dialog>
     </div>
@@ -83,8 +84,9 @@
 </template>
 <script>
 import tinymce from '@/components/tinymce'
-import { delAdverList, addAdverlist } from '@/api/userdefined'
+import { delAdverList, addAdverlist, editAder } from '@/api/userdefined'
 import { advertising } from '@/api/advertising'
+import { getToken } from '@/utils/auth'
 export default {
   components: { tinymce },
   data() {
@@ -105,7 +107,8 @@ export default {
       addadvertising: false,
       total: 0, // 获取列表数据的长度
       pagesize: 200, // 每页的数据列表
-      currentPage: 1 // 默认开始页面
+      currentPage: 1, // 默认开始页面
+      rowInfo:''//自定义广告的修改行的信息
     }
   },
   // 钩子函数
@@ -136,6 +139,7 @@ export default {
         return 'warning-row'
       }
     },
+    //获取广告列表
     async advlist() {
       try {
         const res = await advertising(this.currentPage)
@@ -147,8 +151,13 @@ export default {
       }
     },
     // 点击编辑按钮
-    handleEdit(index, row) {
-      console.log(index, row)
+    handleEdit(row) {
+      this.addadvertising = true
+      //在页面上显示  这一行的信息进行修改
+      this.rowInfo = row
+      this.title = row.title
+      this.content = row.details
+      this.$refs.box.setContent(this.content)
     },
     // 点击删除按钮删除自定义广告
     async deleteEdit(row) {
@@ -166,32 +175,37 @@ export default {
     },
     // 添加广告
     async addEdit() {
-      try {
-        const res = await addAdverlist(this.img_url, this.title, this.status, this.content)
-        console.log('res', res)
-        this.addadvertising = false
-        this.currentPage = 1
-        if (res.status === 201) {
-          this.$message({
-            message: '添加成功',
-            type: 'success'
-          })
-          // this.advlist()
+      if(this.rowInfo){//修改
+        let [id, img_url, title, status, details] = [this.rowInfo.id, this.rowInfo.img_url, this.title, this.rowInfo.status,this.content]
+        try{
+            await editAder(id, img_url, title, status, details).then(res => {
+              this.$message({
+                message: '修改成功',
+                type: 'success'
+              })
+              this.advlist()
+              this.addadvertising = false
+              this.rowInfo = ''
+            })
+        }catch(err){
+            console.log(err)
         }
-        this.content = ''
-      } catch (err) {
-        console.log('错误信息', err)
-        // if (this.content === '') {
-        //   this.$message({
-        //     message: `${err.response.data.errors.details}`,
-        //     type: 'info'
-        //   })
-        // } else {
-        //   this.$message({
-        //     message: `${err.response.data.errors.title}`,
-        //     type: 'info'
-        //   })
-        // }
+      }else{//新增
+        try {
+          const res = await addAdverlist(this.img_url, this.title, this.status, this.content)
+          this.addadvertising = false
+          this.currentPage = 1
+          if (res.status === 201) {
+            this.$message({
+              message: '添加成功',
+              type: 'success'
+            })
+            this.advlist()
+          }
+          this.content = ''
+        } catch (err) {
+          console.log('错误信息', err)
+        }
       }
     }
   }
@@ -219,6 +233,9 @@ export default {
 .userdefined-addadvertisting i{
   width: 22px;
   height: 22px;
+}
+.textarea{
+  width: 45em;
 }
 /* 弹窗标题 */
 .addadvertising-dialog .el-dialog__header{

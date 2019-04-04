@@ -20,13 +20,13 @@
             <el-form-item label="优惠券名：">
               <el-input v-model="checkForm.name" placeholder="请输入优惠券姓名" />
             </el-form-item>
-
-            <el-form-item label="能否与储值卡同时用："/>
-            <el-select v-model="checkForm.is_value_card" placeholder="全部">
-              <el-option value="" label="全部"/>
-              <el-option value="1" label="是"/>
-              <el-option value="0" label="否"/>
-            </el-select>
+            <!--暂时去掉了-->
+            <!--<el-form-item label="能否与储值卡同时用："/>-->
+            <!--<el-select v-model="checkForm.is_value_card" placeholder="全部">-->
+              <!--<el-option value="" label="全部"/>-->
+              <!--<el-option value="1" label="是"/>-->
+              <!--<el-option value="0" label="否"/>-->
+            <!--</el-select>-->
             <div class="promotio-enter">
               <!-- 管理员账号查询 -->
               <el-form-item label="开始日期：">
@@ -50,7 +50,7 @@
                   <el-option value="1" label="启用"/>
                 </el-select>
                 <el-button type="primary" @click="searchproList()">搜索</el-button>
-                <el-button type="text" style="margin-left:10px;">清除搜索记录</el-button>
+                <el-button type="text" style="margin-left:10px;" @click="clearSearch">清除搜索记录</el-button>
               </el-form-item>
           </div></el-form>
           <!-- 查询表单结束 -->
@@ -70,23 +70,23 @@
         <el-table-column align="center" prop="endtime_at" label="结束时间" />
         <el-table-column align="center" prop="num" label="总数量" />
         <el-table-column align="center" prop="num" label="剩余数量" />
-        <el-table-column align="center" label="能否与储值卡同用">
-          <template slot-scope="props">
-            <span v-if="props.row.is_value_card===0" style="color:#f56c6c;">否</span>
-            <span v-if="props.row.is_value_card===1" style="color:#67c23a;">是</span>
-          </template>
-        </el-table-column>
+        <!--<el-table-column align="center" label="能否与储值卡同用">-->
+          <!--<template slot-scope="props">-->
+            <!--<span v-if="props.row.is_value_card===0" style="color:#f56c6c;">否</span>-->
+            <!--<span v-if="props.row.is_value_card===1" style="color:#67c23a;">是</span>-->
+          <!--</template>-->
+        <!--</el-table-column>-->
         <el-table-column align="center" prop="status" label="状态">
-          <template slot-scope="props">
-            <span v-if="props.row.status===0" style="color:#f56c6c;">禁用中</span>
-            <span v-if="props.row.status===1" style="color:#67c23a;">启用中</span>
+          <template slot-scope="scope">
+            <span v-if="!scope.row.status" style="color:#f56c6c;">禁用中</span>
+            <span v-if="scope.row.status" style="color:#67c23a;">启用中</span>
           </template>
         </el-table-column>
         <el-table-column align="center" label="操作">
-          <template slot-scope="props">
-            <el-button v-if="props.row.status===0" type="success" size="small" @click="chanageStatus(props.row)">启用</el-button>
-            <el-button v-if="props.row.status===1" type="danger" size="small" @click="chanageStatus(props.row)">禁用</el-button>
-            <el-button type="info" size="small" @click="delpromotion(props.row)">删除</el-button>
+          <template slot-scope="scope">
+            <el-button v-if="!scope.row.status" type="success" size="small" @click="chanageStatus(scope.row)">启用</el-button>
+            <el-button v-if="scope.row.status" type="danger" size="small" @click="chanageStatus(scope.row)">禁用</el-button>
+            <el-button type="info" size="small" @click="delpromotion(scope.row)">删除</el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -271,7 +271,7 @@ export default {
       this.getprolist()
     },
     // 点击添加优惠券发生的时间
-    addpreferential() {
+    addpreferential: function() {
       this.addRoot = true
     },
     // 获取优惠券列表
@@ -286,23 +286,23 @@ export default {
         console.log(err)
       }
     },
-    // 更改启用禁用
+    // 更改启用禁用   参数为整个优惠券对象
     async chanageStatus(row) {
-      if (row.status === 0) {
+      if (!row.status) {
         row.status = 1
-      } else if (row.status === 1) {
+      } else if (row.status) {
         row.status = 0
       }
       const id = row.id
       const status = row.status
       try {
         await chanageStatus(id, status)
-        if (row.status === 0) {
+        if (!row.status) {
           this.$message({
             message: '禁用成功',
             type: 'success'
           })
-        } else if (row.status === 1) {
+        } else if (row.status) {
           this.$message({
             message: '启用成功',
             type: 'success'
@@ -339,12 +339,25 @@ export default {
       const is_value_card = this.addRootForm.is_value_card
       const is_integral = this.addRootForm.is_integral
       try {
-        await AddProList(name, minimum_consumption, exemption_amount, num, startime_at, endtime_at, is_value_card, is_integral)
-        this.addRoot = false
-        this.getprolist()
+        await AddProList(name, minimum_consumption, exemption_amount, num, startime_at, endtime_at, is_value_card, is_integral).then(res=>{
+          console.log(res)
+          this.addRoot = false
+          this.getprolist()
+        })
       } catch (err) {
         console.log(err)
       }
+    },
+    //清除搜索记录
+    clearSearch(){
+      this.addRootForm.name = ''
+      this.addRootForm.minimum_consumption = ''
+      this.addRootForm.exemption_amount = ''
+      this.addRootForm.startime_at= ''
+      this.addRootForm.endtime_at = ''
+      this.addRootForm.is_value_card = ''
+      this.addRootForm.is_integral = ''
+      this.getprolist()
     },
     // 查询优惠券列表
     async searchproList() {

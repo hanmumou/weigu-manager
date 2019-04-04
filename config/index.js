@@ -12,6 +12,7 @@ module.exports = {
     proxyTable: {
       '/API': {
         target: 'https://suokekj.com/community-api/',
+        // target: 'http://vagrant.suokewangluo.com/',
         secure: true,
         changeOrigin: true,
         pathRewrite: {

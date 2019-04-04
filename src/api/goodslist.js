@@ -24,9 +24,7 @@ export const getCity = (type, data) => post('api/area', {
   type,
   data
 })
-export const delGoods = (goods_id_json) => post('api/goods/goods-delete', {
-  goods_id_json
-})
+export const delGoods = (goods_id_json) => patch('api/goods/delete', goods_id_json, { headers: { 'Content-Type': 'application/json' } })
 
 // 根据商品id获取该商品规格笛卡尔积   调的是商品属性笛卡尔积接口
 export const getSkuById = (id) => GET('api/goods/sku/cartesian-product/' + id)

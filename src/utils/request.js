@@ -25,7 +25,7 @@ axios.interceptors.request.use(
     // 检测post请求响应数据类型
     if (config.method === 'post') {
       // 内容响应格式非json类型
-      if (!config.headers['Content-Type'].match(/application\/json/i)) {
+      if (config.headers['Content-Type'].match(/application\/x-www-form-urlencoded/i)) {
         config.data = qs.stringify({
           ...config.data
         })
@@ -111,6 +111,16 @@ export const GET = (url, data = {}, config = {}) => {
   })
 }
 
+/**
+ * Patch Request
+ *
+ * 说明：data传参，数据类型为json时，默认转换为jsonString
+ *
+ * @param url
+ * @param data 标准数据
+ * @param config 额外参数
+ * @returns {Promise<any>}
+ */
 export const patch = (url, data, config = {}) => {
   return new Promise((resolve, reject) => {
     axios.patch(`${baseUrl}${url}`, { data }, config).then(res => {

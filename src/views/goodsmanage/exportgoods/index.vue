@@ -1,6 +1,6 @@
 <template>
   <div class="goodsmanage-box">
-    <el-form :model="goodsForm"  label-width="120px" hide-required-asterisk="true">
+    <el-form :model="goodsForm" label-width="120px" hide-required-asterisk="true">
       <el-form-item required label="选择分类：">
         <el-select v-model="goodsForm.category_id">
           <el-option v-for="item in categoryList" :value="item.id" :label="item.name" :key="item.id"/>
@@ -153,28 +153,28 @@ export default {
       province_id: '',//选择的省
       city_id: '',//选择的市
       goodsForm: {
-        category_id: '',
-        name: '',
+        category_id: null, // 商品分类
+        name: '', // 商品昵称
         introduce: '',
-        main_picture: '',//产品主图
-        detail_picture: [],//产品详情图
+        main_picture: '', // 产品主图
+        detail_picture: [], // 产品详情图
         video_url: '',
         price: '',
         original_price: '',
         cost_price: '',
         goods_sku_status: '0',
-        //goods_sku: [],//当选择关闭规格时   这个字段是不需要传的  index=12
+        //goods_sku: [], // 当选择关闭规格时   这个字段是不需要传的  index=12
         start_at: '',
         end_at: '',
         delivery_at: '',
-        goods_limit_stock: '',
+        goods_limit_stock: 0, // 商品限购；0为不限制
         stock: '',
         commission: '',
-        commander_leader_commission:'',//团长推荐佣金
+        commander_leader_commission: '', // 团长推荐佣金
         goods_type: '',
         details: '',
-        address_ids:[],//城市多选
-        regimental_ids:[]//团长多选
+        address_ids: [], // 城市多选
+        regimental_ids: [], // 团长多选
       },
       headers: { // 图片请求头部
         Authorization: ''
@@ -197,7 +197,7 @@ export default {
       delivery_date:'',
       btnText: '确认提交',
       spec: '0',
-      coloneList:[]//团长列表
+      coloneList:[], // 团长列表
     }
   },
   watch: {
@@ -386,6 +386,10 @@ export default {
     },
     // 提交
     async onSubmit(val) {
+      if (!val.category_id) {
+        this.$message({message: '商品分类为必填项', type: 'warning'})
+        return;
+      }
       val.start_at = this.start_date + ' ' + this.start_at_time + ':00'
       val.end_at = this.end_date + ' ' + this.end_at_time + ':00'
       if (this.delivery_date && this.delivery_at_time) {
@@ -401,13 +405,14 @@ export default {
       }
       val.address_ids = Object.prototype.toString.apply(val.address_ids) === '[object Array]' ? JSON.stringify(val.address_ids) : val.address_ids
       // 团长格式处理
-      if (this.commander.includes('all')) { // 返回true  or false
+      if (this.commander.includes('all')) {
         // 选择了全部
         val.regimental_ids = ''
       } else {
         val.regimental_ids = JSON.stringify(this.commander)
       }
-      if (this.spec == '0') { // 无规格
+      // 无规格
+      if (this.spec == '0') {
         // 发布商品
         if (!this.$route.query.id) {
           try {
@@ -420,10 +425,11 @@ export default {
               type: 'success'
             })
           } catch (err) {
-            console.log(err)
+            this.$message({message: err, type: 'warning'})
           }
-        } else if (this.$route.query.id) {
-          // 重新编辑商品
+        }
+        // 重新编辑商品
+        else if (this.$route.query.id) {
           try {
             await editGoods(
               this.$route.query.id, val.category_id, val.name, val.introduce, val.main_picture, val.detail_picture, val.video_url, val.price, val.original_price, val.cost_price,

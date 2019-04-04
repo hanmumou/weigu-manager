@@ -26,3 +26,11 @@ export const updatemotorlist = (banner_img, every_step_exchange_integral, is_val
 
 // 获取用户运动积分详情列表
 export const getRecordList = () => GET('api/integral/list')
+
+//根据条件查询用户运动积分详情
+export const searchlistByCon = (name,phone) =>GET('api/integral/list?name='+
+  name +'&phone=' + phone
+)
+
+//清空用户运动积分
+export const clearUserRecoed = (id) =>patch('api/integral/user/clear/' + id)

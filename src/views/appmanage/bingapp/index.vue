@@ -4,7 +4,7 @@
     <div class="bindWechat">
 
       <!-- 判断状态，如果为0，显示绑定页面 -->
-      <div v-if="!status" class="bind">
+      <div v-if="status === 0" class="bind">
         <!-- 授权图片 -->
         <el-row>
           <el-col :span="5" :offset="9">
@@ -28,7 +28,7 @@
           </el-col>
         </el-row>
         <!-- 审核中内容 -->
-        <p class="content">小程序以授权成功、提交微信审核、需2-3天！</p>
+        <p class="content">小程序已授权、提交微信审核、需2-3天！</p>
       </div>
       <!-- 判断状态，如果为2，显示审核失败页面 -->
       <div v-if="status===2" class="Not_review">
@@ -62,7 +62,7 @@
 export default {
   data() {
     return {
-      status:this.$router.query.status,
+      status:0,
       imgurl:''//审核成功的小程序二维码
     }
   },
@@ -88,7 +88,6 @@ export default {
          url:'https://suokekj.com/api/api/wechat/authorize/mini-program/qrcode',
          type:'POST',
          success:function(res){
-           console.log(res)
            //0表示审核成功   1审核失败  2审核中  3已撤回  4已发布
             if(res.wachet_status == 2){
               _this.status = 1

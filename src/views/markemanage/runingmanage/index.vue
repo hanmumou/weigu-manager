@@ -76,33 +76,34 @@
             <div class="export">
               <el-button size="medium" type="primary" @click="exportExcel">导出会员列表</el-button>
             </div>
-            <el-form-item label="用户ID：">
-              <el-input/>
-            </el-form-item>
             <el-form-item label="用户姓名：">
-              <el-input/>
+              <el-input placeholder="请输入用户姓名" v-model="username"/>
             </el-form-item>
             <el-form-item label="用户电话：">
-              <el-input/>
+              <el-input placeholder="请输入用户电话" v-model="userphone"/>
             </el-form-item>
-            <el-button type="primary">查询</el-button>
+            <el-button type="primary" @click="searchCon">查询</el-button>
           </el-form>
         </div>
         <!-- 用户积分详情表格 -->
         <el-table id="#exportexcel" ref="multipleTable" :xs="20" :data="runRecordList" :row-class-name="tableRoWClassName" tooltip-effect="dark" border style="width: 88%" @selection-change="handleSelectionChange">
           <el-table-column type="selection" align="center"/>
           <el-table-column prop="user_id" label="用户ID" align="center"/>
-          <el-table-column prop="user_wechat_avatar" label="微信头像" align="center"/>
+          <el-table-column prop="user_wechat_avatar" label="微信头像" align="center">
+            <template  slot-scope="scope">
+              <img :src="scope.row.user_wechat_avatar" alt="微信头像" style="width:50px;height:50px;border-radius:50%;">
+            </template>
+          </el-table-column>
           <el-table-column prop="user_wechat_name" align="center" width="130" label="微信昵称" show-overflow-tooltip/>
           <el-table-column prop="user_name" align="center" label="姓名" show-overflow-tooltip/>
-          <el-table-column prop="address" align="center" label="电话" show-overflow-tooltip/>
-          <el-table-column prop="address" align="center" label="运动步数" show-overflow-tooltip/>
-          <el-table-column prop="phone" align="center" label="兑换积分" show-overflow-tooltip/>
-          <el-table-column prop="phone" align="center" label="已使用积分"/>
-          <el-table-column prop="phone" align="center" label="剩余积分" show-overflow-tooltip/>
+          <el-table-column prop="user_phone" align="center" label="电话" show-overflow-tooltip/>
+          <el-table-column prop="user_steps" align="center" label="运动步数" show-overflow-tooltip/>
+          <el-table-column prop="user_push_integral" align="center" label="兑换积分" show-overflow-tooltip/>
+          <el-table-column prop="user_pull_integral" align="center" label="已使用积分"/>
+          <el-table-column prop="user_integral" align="center" label="剩余积分" show-overflow-tooltip/>
           <el-table-column align="center" label="操作" show-overflow-tooltip>
             <template  slot-scope="scope">
-              <el-button>清空</el-button>
+              <el-button size="mini" @click="clearRecord(scope.row)">清空</el-button>
             </template>
           </el-table-column>
         </el-table>
@@ -115,11 +116,13 @@ import FileSaver from 'file-saver'
 import XLSX from 'xlsx'
 import tinymce from '@/components/tinymce'
 import { getToken } from '@/utils/auth'
-import { addmotor, motorlist, updatemotorlist, getRecordList } from '@/api/motor'
+import { addmotor, motorlist, updatemotorlist, getRecordList, searchlistByCon, clearUserRecoed } from '@/api/motor'
 export default {
   components: { tinymce },
   data() {
     return {
+      username:'',//用户姓名
+      userphone:'',//用户电话
       formData: {
         id:'',
         banner_img: '',
@@ -153,10 +156,32 @@ export default {
   mounted() {
     // 获取运动积分列表
     this.getlist()
+    this.getrunRecordList()
   },
   methods: {
+    //清空用户运动积分
+    async clearRecord(row){
+      const id = row.user_id
+        try{
+           await clearUserRecoed(id).then(res=>{
+              this.$message.success('操作成功')
+           })
+        }catch(err){
+           console.log(err)
+        }
+    },
+    //根据条件查询
+    async searchCon(){
+       try{
+         await searchlistByCon(this.username, this.userphone).then(res=>{
+           this.runRecordList = res.data
+         })
+       }catch(err){
+         console.log(err)
+       }
+    },
     //获取用户运动积分详情
-    async runRecordList(){
+    async getrunRecordList(){
        try{
           await getRecordList().then(res=>{
              this.runRecordList = res.data

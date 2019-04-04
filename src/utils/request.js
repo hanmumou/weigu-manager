@@ -1,5 +1,5 @@
 import axios from 'axios'
-import { Message } from 'element-ui'
+// import { Message } from 'element-ui'
 import store from '../store'
 import { getToken, setToken } from '@/utils/auth' // 导入token
 import qs from 'qs'

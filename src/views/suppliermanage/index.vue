@@ -12,7 +12,7 @@
           width="180"/>
         <el-table-column
           prop="phone"
-          label="电话"
+          label="电弧"
           align="center"
           width="180"/>
         <el-table-column
@@ -21,8 +21,8 @@
           label="产品简介"/>
         <el-table-column align="center" label="代理商信息">
           <template slot-scope="props">
-            <el-button v-if="props.row.is_read===0" type="primary" size="small" @click="changeRead(props)">未读</el-button>
-            <el-button v-if="props.row.is_read===1" type="danger" size="small">已读</el-button>
+            <el-button v-if="props.row.is_read===0" type="primary" size="small">未读</el-button>
+            <el-button v-if="props.row.is_read===1" type="info" size="small">已读</el-button>
             <el-button v-if="props.row.is_read===2" type="primary" size="small">通过</el-button>
             <el-button type="primary" size="small" @click="delSupplier(props.row)">删除</el-button>
           </template>
@@ -70,10 +70,6 @@ export default {
     this.GetSupplierList()
   },
   methods: {
-    //供应商信息由未读改成已读
-   async changeRead(props){
-          props.row.is_read = 1
-    },
     // currentpage改变时会触发
     current_change: function(currentPage) {
       this.currentPage = currentPage

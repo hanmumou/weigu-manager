@@ -43,26 +43,26 @@
 					<div class="export">
 						<el-button size="medium" type="primary" @click="exportExcel">导出订单</el-button>
 					</div>
-					<el-button type="primary" @click="deliveryGoods">批量发货</el-button>
-					<el-button type="primary" @click="delForever">永久删除</el-button><br>
+					<el-button type="primary">批量发货</el-button>
+					<el-button type="primary">永久删除</el-button><br>
 				</div>
 				<el-form-item label="订单号">
-					<el-input style="width:132px" placeholder="请输入订单号" v-model="order_no"/>
+					<el-input style="width:132px" />
 				</el-form-item>
 				<el-form-item label="订单状态：">
-					<el-select placeholder="请选择订单状态" v-model="goodsStatus">
-						<el-option label="全部" value=" " />
-            <el-option label="已发货" value="2" />
-						<el-option label="退款中" value="3" />
-						<el-option label="已退款" value="4" />
-						<el-option label="已完成" value="5" />
+					<el-select placeholder="请选择订单状态" value="">
+						<el-option label="全部" value="" />
+						<el-option label="退款中" value="" />
+						<el-option label="已退款" value="" />
+						<el-option label="已发货" value="" />
+						<el-option label="已完成" value="" />
 					</el-select>
 				</el-form-item>
 				<el-form-item label="产品名称：">
-					<el-input placeholder="请输入产品名称" v-model="goodsName"/>
+					<el-input placeholder="请输入产品名称" />
 				</el-form-item>
 				<el-form-item label="团长姓名">
-					<el-select placeholder="请选择团长" v-model="addid">
+					<el-select placeholder="请选择团长" v-model="comid">
 						<el-option v-for="item in comList" :label="item.name" :value="item.id" />
 					</el-select>
 				</el-form-item>
@@ -72,16 +72,16 @@
 					</el-select>
 				</el-form-item>
 				<el-form-item label="所在区域：">
-					<el-select placeholder="请选择所在省" v-model="province_id" @change="changePro">
+					<el-select placeholder="请选择所在省" v-model="province.province_id" @change="changePro">
 						<el-option v-for="item in province" :key="item.province_id" :label="item.name" :value="item.province_id" />
 					</el-select>
-					<el-select placeholder="请选择所在区域" v-model="city_id">
+					<el-select placeholder="请选择所在区域" v-model="city.city_id">
 						<el-option v-for="item in city" :key="item.city_id" :label="item.name" :value="item.city_id" />
 					</el-select>
 				</el-form-item>
-				<el-date-picker type="date" format="yyyy-MM-d" value-format="yyyy-MM-d" placeholder="开始日期"  v-model="start_at"/>
-				<el-date-picker type="date" format="yyyy-MM-d" value-format="yyyy-MM-d" placeholder="结束时间" v-model="end_at"/>
-				<el-button type="primary" @click="searchByCon">查询</el-button>
+				<el-date-picker type="date" format="yyyy-MM-d" value-format="yyyy-MM-d" placeholder="开始日期" />
+				<el-date-picker type="date" format="yyyy-MM-d" value-format="yyyy-MM-d" placeholder="结束时间" />
+				<el-button type="primary">查询</el-button>
 			</el-form>
 		</div>
 		<!-- 假表头 -->
@@ -106,7 +106,7 @@
 		<!-- 表格开始 -->
 		<!-- foritem和表作为一组循环 并且表头隐藏-->
 		<div v-for="(item, index) in tableData" :key="index" class="ordermanage">
-			<el-form v-model="item.id" :inline="true" v-if="tableData[index].order_items.length != 0">
+			<el-form v-model="item.id" :inline="true">
 				<el-form-item label="快递公司">
 					<el-select v-model="ary[index]" placeholder="请选择快递公司" value="">
 						<el-option v-for="(cou, cous) in courier" :key="cous" :value="cou.code" :label="cou.name" />
@@ -123,7 +123,7 @@
 				<!--:key="index" :data="tableData"-->
 				<tr>
 					<td id="color-input-red">
-						<input :checked="checkbox" class="allcheckbox" type="checkbox" :value="item.id">
+						<input :checked="checkbox" class="allcheckbox" type="checkbox">
 					</td>
 					<td class="gds-order">{{ item.order_no }}</td>
 					<td class="gds-name">{{ order.name }}</td>
@@ -140,8 +140,7 @@
 					</td>
 					<td class="gds-addressid">{{ item.user_address_id }}</td>
 					<td class="gds-address">{{ item.user_address_detail }}</td>
-          <td class="gds-marke" v-if=" item.regimental_commander">{{ item.regimental_commander.name}}</td>
-          <td class="gds-marke" v-if=" !item.regimental_commander">官方订单</td>
+					<td class="gds-marke">{{ item.regimental_commander.name}}</td>
 					<td class="gds-status">
 						<span v-if="item.status===0">未支付</span>
 						<span v-if="item.status===1">已支付</span>
@@ -167,7 +166,7 @@
 	</div>
 </template>
 <script>
-	import { getorderlist, getcourierlist, getsaleslist, wechatRefund, SetDelivery, delOrder, getCommander, getPro, getOrderByCon, delForever, deliGoods } from '@/api/ordermanage'
+	import { getorderlist, getcourierlist, getsaleslist, wechatRefund, SetDelivery, delOrder, getCommander, getPro } from '@/api/ordermanage'
 
 	export default {
 		data() {
@@ -233,16 +232,10 @@
 				},
 				ifchooseAll: false, //是否点击全选表格
 				comList: [], //团长列表
-				addid: '', //团长对应的取货点id  团长id与取货点id 相同
+				comid: '', //团长id
+				addid: '', //团长对应的取货点id
 				province:'',//省
-        city:'',//市
-        start_at:'',//开始时间
-        end_at:'',//结束时间
-        goodsName:'',//商品名称
-        goodsStatus:'',//订单状态
-        order_no:'',//订单号
-        province_id:'',//选择的省
-        city_id:''//选择的市
+                city:''//市
 			}
 		},
 		created() {
@@ -253,85 +246,6 @@
 			this.getProvince()
 		},
 		methods: {
-		  //根据条件查询订单信息
-       async searchByCon(order_no,  status, name, id, province_id, city_id, start_at, end_at){
-         order_no = this.order_no
-         status = this.goodsStatus
-         name = this.goodsName
-         id = this.addid
-         province_id = this.province_id
-         city_id = this.city_id
-         start_at = this.start_at
-         end_at = this.end_at
-           try{
-               await getOrderByCon(order_no,  status, name, id, province_id, city_id, start_at, end_at).then(res=>{
-                 this.tableData = res.data
-                 for(const i in this.tableData) {
-                   this.ary.push('')
-                   this.delivery.push('')
-                   //console.log(i)
-                 }
-               })
-           }catch(err){
-              console.log(err)
-           }
-      },
-      //永久删除订单   批量删除  删除一个或者是多个
-      async delForever(){
-         let checks = document.getElementsByClassName('allcheckbox')
-         let idArr=[]
-         for(let i=0;i<checks.length;i++){
-           if(checks[i].checked){
-             idArr.push(checks[i].value)
-           }
-         }
-        idArr = idArr.reduce((pre,cur)=>{
-          if(!pre.includes(cur)){
-            return pre.concat(cur)
-          }else{
-            return pre
-          }
-        },[])
-          try{
-            await delForever(idArr).then(res=>{
-              this.$message({
-                message: '删除成功',
-                type: 'success'
-              })
-               this.GetOrderList()
-            })
-          }catch(err){
-            console.log(err)
-          }
-      },
-      //批量发货
-      async deliveryGoods(){
-        let checkss = document.getElementsByClassName('allcheckbox')
-        let idArrs=[]
-        for(let i=0;i<checkss.length;i++){
-          if(checkss[i].checked){
-            idArrs.push(checkss[i].value)
-          }
-        }
-        idArrs = idArrs.reduce((pre,cur)=>{
-          if(!pre.includes(cur)){
-            return pre.concat(cur)
-          }else{
-            return pre
-          }
-        },[])
-          try{
-              await deliGoods(idArrs).then(res=>{
-                this.$message({
-                  message: '批量发货成功',
-                  type: 'success'
-                })
-                this.GetOrderList()
-              })
-          }catch(err){
-             console.log(err)
-          }
-      },
 			//获取省
 			async getProvince() {
 				try {
@@ -341,11 +255,12 @@
 				} catch(err) {
 					console.log(err)
 				}
+
 			},
 			//根据省份获取城市
 			async getCity() {
 				const data = JSON.stringify({
-					'province_id': this.province_id
+					'province_id': this.province.province_id
 				})
 				try {
 					const res = await getPro(2, data)
@@ -403,6 +318,7 @@
 					for(const i in this.tableData) {
 						this.ary.push('')
 						this.delivery.push('')
+						//console.log(i)
 					}
 				} catch(err) {
 					console.log(err)
@@ -455,7 +371,7 @@
 			},
 			//导出订单
 			exportExcel: function() {
-				//全部导出
+				//全部导出  
 				if(this.ifchooseAll == true) {
 					window.location.href = "https://community.suokekj.com/api/orders/export?order_ids=[]"
 				} else {
@@ -472,6 +388,7 @@
 						}
 					}
 					ids = JSON.stringify(ids)
+					console.log(this.tableData)
 					window.location.href = "https://community.suokekj.com/api/orders/export?order_ids=" + ids
 				}
 				this.EscChecked()
@@ -492,75 +409,75 @@
 
 <style>
 	/* table样式 */
-
+	
 	.ordermanage-table {
 		font-size: 14px;
 		color: #606266;
 	}
-
+	
 	.ordermanage-table td {
 		text-align: center;
 	}
-
+	
 	.gds-order {
 		width: 150px;
 	}
-
+	
 	.gds-name {
 		width: 140px;
 		padding-left: 2%;
 	}
-
+	
 	.gds-price {
 		width: 90px;
 		padding-left: 1.5%;
 	}
-
+	
 	.gds-detail {
 		width: 140px;
 		padding-left: 1.5%;
 	}
-
+	
 	.gds-virtual {
 		width: 80px;
 		padding-left: 1.5%;
 	}
-
+	
 	.gds-phonename {
 		width: 140px;
 		padding-left: 1.5%;
 	}
-
+	
 	.gds-addressid {
 		width: 80px;
 		padding-left: 1%;
 	}
-
+	
 	.gds-address {
 		width: 140px;
 		padding-left: 2.5%;
 	}
-
+	
 	.gds-marke {
 		width: 120px;
 	}
-
+	
 	.gds-status {
 		width: 80px;
 		padding-left: 1%;
 	}
-
+	
 	.gds-money {
 		width: 80px;
 		padding-left: 4%;
 	}
-
+	
 	.gds-created {
 		padding-left: 2%;
 	}
 	/* 结束 */
 	/* 卡片样式 */
-
+	
 	.order-card {
 		width: 100%;
 		height: 120px;
@@ -569,13 +486,13 @@
 		box-shadow: 1px 2px 4px 0px rgba(0, 0, 0, 0.5);
 		border-radius: 8px;
 	}
-
+	
 	.order-content {
 		width: 20%;
 		padding: 1.2%;
 		float: left;
 	}
-
+	
 	.order-card img {
 		padding-top: 20px;
 		padding-right: 10px;
@@ -583,48 +500,48 @@
 		height: 60px;
 	}
 	/* 字体大小 及颜色处理*/
-
+	
 	.oerder-sales {
 		font-size: 20px;
 		color: #FF0000;
 	}
-
+	
 	.order-text {
 		font-size: 24px;
 		margin: 0;
 		margin-top: 15px;
 		color: #2E2D2D;
 	}
-
+	
 	.order-text span {
 		color: #f00;
 	}
-
+	
 	.oerder-day {
 		font-size: 20px;
 		color: #26A98F;
 	}
-
+	
 	.oerder-cargo {
 		font-size: 20px;
 		color: #B74B03;
 	}
-
+	
 	.oerder-affirm {
 		font-size: 20px;
 		color: #ACBC03;
 	}
-
+	
 	.oerder-refund {
 		color: #777777;
 		font-size: 20px;
 	}
-
+	
 	.order-clear {
 		clear: both;
 	}
 	/* 列表样式 */
-
+	
 	.order-list {
 		width: 100%;
 		padding: 20px;
@@ -632,34 +549,34 @@
 		background-color: rgb(48, 65, 86);
 		box-sizing: border-box;
 	}
-
+	
 	.order-list .el-form-item__label {
 		color: #fff;
 	}
 	/*  */
-
+	
 	.order-list .export {
 		display: inline;
 	}
-
+	
 	.order-mbtn {
 		margin-bottom: 24px;
 	}
-
+	
 	.ordermanage {}
-
+	
 	.ordermanage .el-form {
 		background: #FDEEE4;
 		height: 44px;
 		padding-left: 40px;
 	}
 	/* 假表头样式 */
-
+	
 	.order-faketable .el-table__empty-block {
 		display: none;
 	}
 	/* 订单页面input多选框样式 */
-
+	
 	.ordermanage #color-input-red input[type="checkbox"] {
 		-webkit-appearance: none;
 		-moz-appearance: none;
@@ -672,11 +589,11 @@
 		cursor: pointer;
 		border: 1px solid #ebeef5;
 	}
-
+	
 	.ordermanage #color-input-red input[type="checkbox"]:hover {
 		border: #409EFF 1px solid;
 	}
-
+	
 	.ordermanage #color-input-red input[type="checkbox"]:checked::before {
 		display: block;
 		content: "\2714";

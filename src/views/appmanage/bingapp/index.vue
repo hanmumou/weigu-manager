@@ -4,7 +4,7 @@
     <div class="bindWechat">
 
       <!-- 判断状态，如果为0，显示绑定页面 -->
-      <div v-if="!status" class="bind">
+      <div v-if="status===0" class="bind">
         <!-- 授权图片 -->
         <el-row>
           <el-col :span="5" :offset="9">
@@ -14,7 +14,7 @@
         <!-- 授权按钮 -->
         <el-row style="marginTop:60px;">
           <el-col :span="5" :offset="9" class="authorization">
-            <el-button type="success" round @click="grantApp" class="bind_btn">去授权小程序</el-button>
+            <el-button type="success" round>去授权小程序</el-button>
           </el-col>
         </el-row>
       </div>
@@ -58,29 +58,11 @@
 </template>
 
 <script>
-  import {getAuthcode} from '@/api/bingapp'
 export default {
   data() {
     return {
-      status:this.$router.query.status
+      status: 0
     }
-  },
-  methods:{
-     //绑定小程序  点击绑定小程序 跳转到绑定页面
-     grantApp(){
-       $.ajax({
-         url: 'https://suokekj.com/api/api/wechat/authorize?reback=https://suokekj.com/community-admin/dist/index.html',
-         type:'GET',
-         success:function(res){
-           window.location.href = res
-         }
-       });
-       //console.log(this.$store.getters.token)
-
-    }
-  },
-  mounted(){
-
   }
 }
 </script>

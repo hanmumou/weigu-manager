@@ -11,12 +11,11 @@ module.exports = {
     assetsPublicPath: '/',
     proxyTable: {
       '/API': {
-        target: 'https://suokekj.com/community-api/',
-        // target: 'http://vagrant.suokewangluo.com/',
+        target: 'https://community.suokekj.com',
         secure: true,
         changeOrigin: true,
+        ws: true,
         pathRewrite: {
-          ws: true,
           '^/API': ''
         }
       }

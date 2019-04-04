@@ -5,7 +5,7 @@
         <!-- <el-radio :label="3" @change="toggleSelection(tableData3)">全选</el-radio> -->
         <el-button class="select-all" @click="toggleSelection(tableData3)">全选表格</el-button>
         <div class="export">
-          <el-button size="medium" type="primary" @click="exportExcel">导出用户列表</el-button>
+          <el-button size="medium" type="primary" @click="exportExcel">导出会员列表</el-button>
         </div>
         <el-form-item label="用户ID：">
           <el-input v-model="userForm.id" placeholder="请输入用户ID"/>
@@ -58,47 +58,46 @@
         prop="name"
         align="center"
         label="姓名"
-        />
+        show-overflow-tooltip/>
       <el-table-column
         prop="phone"
         align="center"
         label="电话"
-        /><!--show-overflow-tooltip-->
+        show-overflow-tooltip/>
       <el-table-column
         align="center"
-        prop="regimental_commander_data.name"
+        width="400"
         label="所属团长"
-        >
-        <!--<template slot-scope="props">-->
-          <!--<p>{{ props.row.regimental_commander_data.name }}</p>-->
-          <!--<p>{{ props.row.regimental_commander_data.phone }}</p>-->
-        <!--</template>-->
+        show-overflow-tooltip>
+        <template slot-scope="props">
+          <p>{{ props.row.regimental_commander_data.name }}</p>
+          <p>{{ props.row.regimental_commander_data.phone }}</p>
+        </template>
       </el-table-column>
       <el-table-column
         align="center"
-        width="380"
+        width="400"
         label="取货地址"
-        >
+        show-overflow-tooltip>
         <template slot-scope="props">
-          <p  v-if="props.row.user_adress_data.length != 0">{{props.row.user_adress_data[0].complete_address }}</p>
-          <p  v-if="props.row.user_adress_data.length == 0">无</p>
+          <p v-for="userList in props.row.user_adress_data" :key="userList">{{ userList.complete_address }}</p>
         </template>
       </el-table-column>
       <el-table-column
         prop="phone"
         align="center"
         label="消费次数"
-       />
+        show-overflow-tooltip/>
       <el-table-column
-        prop="balance"
+        prop="phone"
         align="center"
         label="消费金额"
-        />
+        show-overflow-tooltip/>
       <el-table-column
         prop="created_at"
         align="center"
         label="注册时间"
-        />
+        show-overflow-tooltip/>
     </el-table>
   </div>
 </template>
@@ -173,10 +172,8 @@ export default {
     // 获取用户列表
     async getUserList() {
       try {
-        await getuserlist().then(res => {
-          this.tableData3 = res.data
-          console.log(this.tableData3)
-        })
+        const res = await getuserlist()
+        this.tableData3 = res.data
       } catch (err) {
         console.log(err)
       }

@@ -56,14 +56,9 @@
             <el-radio v-model="bannerForm.type" label="1">产品</el-radio>
             <el-radio v-model="bannerForm.type" label="2">自定义广告</el-radio>
           </el-form-item>
-          <el-form-item label="选择链接：" v-if="bannerForm.type == '1'">
+          <el-form-item label="选择链接：" >
             <el-select v-model="bannerForm.link_address" placeholder="请选择你要跳转的链接">
               <el-option v-for="item in options" :key="item.id" :label="item.name" :value="item.id"/>
-            </el-select>
-          </el-form-item>
-          <el-form-item label="选择链接：" v-if="bannerForm.type == '2'">
-            <el-select v-model="bannerForm.link_address" placeholder="请选择你要跳转的链接">
-              <el-option v-for="item in adverInfo" :key="item.id" :label="item.title" :value="item.id"/>
             </el-select>
           </el-form-item>
           <el-form-item>
@@ -75,7 +70,7 @@
   </div>
 </template>
 <script>
-import { banner, delBanner, addBanner, goodsList, getAderInfo } from '@/api/slidermanage'
+import { banner, delBanner, addBanner, goodsList } from '@/api/slidermanage'
 import { getToken } from '@/utils/auth'
 
 export default {
@@ -96,10 +91,6 @@ export default {
         images: ''
       },
       options: [{
-        value: '',
-        label: ''
-      }],
-      adverInfo:[{
         value: '',
         label: ''
       }],
@@ -156,9 +147,12 @@ export default {
       this.addadvertising = true
       this.bannerForm = row
       this.bannerForm.type = row.type + ''
+
       let readyNum = ''
       readyNum = row.link_address
+      console.log(readyNum)
       this.bannerForm.link_address = Number(readyNum)
+
       try {
         const res = await goodsList()
         this.options = res.data
@@ -180,7 +174,7 @@ export default {
       }
     },
     // 添加轮播图
-    async add() {  //点击添加轮播图的时候  加载链接类别的信息
+    async add() {
       this.addadvertising = true
       this.bannerForm = {
         type: '1',
@@ -188,31 +182,35 @@ export default {
         value: ''
       }
       try {
-        await goodsList().then(res=>{
-          this.options = res.data
-        })
-        await getAderInfo().then(res=>{
-          this.adverInfo = res.data
-        })
+        const res = await goodsList()
+        this.options = res.data
       } catch (err) {
         console.log(err)
       }
     },
     // 新增或编辑提交
     async submitBanner(val) {
+      console.log(val)
       val.status = 0
       try {
-        await addBanner(val).then( res =>{
-          this.$message({
-            message: '提交成功',
-            type: 'success'
-          })
-          this.getBanner()
-          this.addadvertising = false
+        const res = await addBanner(val)
+
+        this.$message({
+          message: '提交成功',
+          type: 'success'
         })
         // this.$router.go(0)
       } catch (err) {
         console.log(err)
+        // if (this.bannerForm.banner_img == '') {
+        //   this.$message({
+        //     message: `${err.response.data.errors.banner_img}`
+        //   })
+        // } else {
+        //   this.$message({
+        //     message: `${err.response.data.errors.link_address}`
+        //   })
+        // }
       }
     }
   }

@@ -13,13 +13,12 @@
               </el-upload>
             </el-form-item>
             <el-form-item label="运动步数：" required>
-              <el-input v-model="formData.step_number" style="width:80px"/>  步可兑换1个积分
+              <el-input v-model="formData.step_number" style="width:80px"/>  步可兑换一个积分
               <p style="color:#aaaaaa;font-size:12px;margin-left:9%;">注:一个积分可兑换0.01元</p>
             </el-form-item>
-            <!--暂时去掉了-->
-            <!--<el-form-item label="可兑换积分：" required>-->
-              <!--<el-input v-model="formData.integral" style="width:301px"/>-->
-            <!--</el-form-item>-->
+            <el-form-item label="可兑换积分：" required>
+              <el-input v-model="formData.integral" style="width:301px"/>
+            </el-form-item>
             <!--<el-form-item label="能否与储值卡同用：" required>
               <template>
                 <el-radio v-model="formData.is_value_card" :label="1">能同时使用</el-radio>
@@ -172,7 +171,10 @@ export default {
         integral: '',
         is_value_card: '',
         is_coupon: '',
-        integralList: [],
+        integralList: [
+          { consumption_amount: '',
+            using_integral: '' }
+        ],
         explain: ''
       },
       consumption_amount: '',
@@ -239,29 +241,23 @@ export default {
     async getlist() {
       try {
         this.richtext = ''
-        await motorlist().then(res=>{
-          if(res){
-            this.formData.explain = res.explain
-            this.formData.id = res.id
-            this.formData.banner_img= res.banner_img
-            this.content = res.explain
-            this.formData.integralList = res.integral_list
-            this.formData.step_number= res.every_step_exchange_integral
-            // 进行判断  判断是修改还是添加
-            this.list = true
-            // 把内容注入到富文本当中
-            this.$refs.box.setContent(this.content)
-          }
-        })
+        const res = await motorlist()
+        console.log(res)
+        this.formData = res.data[0]
+        this.content = res.data[0].explain
+        // 进行判断
+        this.list = true
+        // 把内容注入到富文本当中
+        this.$refs.box.setContent(this.content)
       } catch (err) {
         console.log(err)
       }
     },
     // 添加提交
     async subRun(data) {
-      console.log(111)
       const banner_img = data.banner_img
-      const every_step_exchange_integral = data.step_number
+      console.log(banner_img)
+      const step_number = data.step_number
       const integral = data.integral
       const is_value_card = data.is_value_card
       const is_coupon = data.is_coupon
@@ -269,19 +265,18 @@ export default {
       // 获取富文本内容
       const content = this.content
       try {
-        await addmotor(banner_img, every_step_exchange_integral, integral, is_value_card, is_coupon, integralList, content).then(res=>{
-          this.$message({
-            message: '添加成功',
-            type: 'success'
-          })
-        })
+        const res = await addmotor(banner_img, step_number, integral, is_value_card, is_coupon, integralList, content)
+        console.log('添加提交', res)
+        this.router.go(0)
+        console.log(666)
       } catch (err) {
         console.log(err)
       }
     },
     // 修改提交
     async updateRun(data) {
-      console.log(222)
+      console.log(111)
+      const id = this.formData.id
       const banner_img = data.banner_img
       const step_number = data.step_number
       const integral = data.integral
@@ -290,14 +285,15 @@ export default {
       const integralList = JSON.stringify(this.formData.integralList)
       const content = this.content
       try {
-         await updatemotorlist( banner_img, step_number, integral, is_value_card, is_coupon, integralList, content).then(res=>{
-           if (res.status === 201) {
-             this.$message({
-               message: '修改成功',
-               type: 'success'
-             })
-           }
-        })
+        const res = await updatemotorlist(id, banner_img, step_number, integral, is_value_card, is_coupon, integralList, content)
+        console.log('res', res)
+        console.log(888)
+        if (res.status === 201) {
+          this.$message({
+            message: '修改成功',
+            type: 'success'
+          })
+        }
       } catch (err) {
         console.log(err)
       }
@@ -392,11 +388,11 @@ export default {
 }
 /* tab标签活动选项 */
 .marketing-card .el-tabs__item.is-active{
-  background:#67c23a;
-  color:#fff;
+  background:#FE4643;
+  color:#000;
 }
 .marketing-card .el-tabs__item:hover{
-  color:#fff;
+  color:#409EFF;
 }
 /* tab标签初始化样式 */
 .marketing-card .el-tabs__item{

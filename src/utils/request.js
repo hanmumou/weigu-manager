@@ -33,8 +33,8 @@ axios.interceptors.request.use(
   error => {
     // Do something with request error
     Promise.reject(error)
-  }
-)
+  })
+
 // response 拦截器
 axios.interceptors.response.use(
   response => {
@@ -70,6 +70,7 @@ axios.interceptors.response.use(
     }
     return Promise.reject(error)
   })
+
 // 请求刷新token 方法
 function getRefreshToken() {
   axios.put(baseUrl + 'api/admin/authorizations/current').then(res => {
@@ -124,6 +125,7 @@ export const delate = (url, data, config = {}) => {
     })
   })
 }
+
 // 小程序绑定接口走这个
 export const PostApp = (url, data, config = {}) => {
   return new Promise((resolve, reject) => {

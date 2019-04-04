@@ -138,42 +138,42 @@ export default {
   components: { tinymce },
   data() {
     return {
-      id:this.$route.query.id,//商品id
-      areaList:[],//选择的区域列表
-      timeOption:{
+      id: this.$route.query.id, // 商品id
+      areaList: [], // 选择的区域列表
+      timeOption: {
         start: '00:00',
         step: '01:00',
         end: '24:00'
-      },//时间选择默认选择时间格式
-      start_at_time:'',//开始时间
-      end_at_time:'',//结束时间
-      delivery_at_time:'',//预配送时间
-      commander:'',//展示团长
-      province_id: '',//选择的省
-      city_id: '',//选择的市
+      }, // 时间选择默认选择时间格式
+      start_at_time: '', // 开始时间
+      end_at_time: '', // 结束时间
+      delivery_at_time: '', // 预配送时间
+      commander: '', // 展示团长
+      province_id: '', // 选择的省
+      city_id: '', // 选择的市
       goodsForm: {
         category_id: '',
         name: '',
         introduce: '',
-        main_picture: '',//产品主图
-        detail_picture: [],//产品详情图
+        main_picture: '', // 产品主图
+        detail_picture: [], // 产品详情图
         video_url: '',
         price: '',
         original_price: '',
         cost_price: '',
         goods_sku_status: '0',
-        //goods_sku: [],//当选择关闭规格时   这个字段是不需要传的  index=12
+        // goods_sku: [],//当选择关闭规格时   这个字段是不需要传的  index=12
         start_at: '',
         end_at: '',
         delivery_at: '',
         goods_limit_stock: '',
         stock: '',
         commission: '',
-        commander_leader_commission:'',//团长推荐佣金
+        commander_leader_commission: '', // 团长推荐佣金
         goods_type: '',
         details: '',
-        address_ids:[],//城市多选
-        regimental_ids:[]//团长多选
+        address_ids: [], // 城市多选
+        regimental_ids: [] // 团长多选
       },
       headers: { // 图片请求头部
         Authorization: ''
@@ -191,20 +191,20 @@ export default {
         dirname: 'companies',
         images: ''
       },
-      start_date:'',
-      end_date:'',
-      delivery_date:'',
+      start_date: '',
+      end_date: '',
+      delivery_date: '',
       btnText: '确认提交',
       spec: '0',
-      coloneList:[]//团长列表
+      coloneList: [] // 团长列表
     }
   },
   watch: {
     spec(val) {
       if (val === '1') {
         this.btnText = '下一步 填写规格'
-      }else{
-      	 this.btnText = '确认提交'
+      } else {
+        this.btnText = '确认提交'
       }
     }
   },
@@ -219,38 +219,38 @@ export default {
     this.getCommander()
   },
   methods: {
-    //区域列表删除
-    deleteArea:function(index){
-      this.areaList.splice(index,1)
-      this.goodsForm.address_ids.splice(index,1)
-     },
-    //选择完省市之后 点击添加
-    addArea:function(){
-        if(this.province_id && this.city_id){
-           //获取选择省市的名称
-          let area={'province_id':'','province':'','city_id':'','city':''}
-          let obj={}
-          for(let i=0;i<this.provinceList.length;i++){
-             if(this.provinceList[i].province_id == this.province_id){
-               area.province = this.provinceList[i].name
-               area.procince_id = this.provinceList[i].province_id
-               break
-             }
-          }
-          for(let j=0;j<this.cityList.length;j++){
-             if(this.cityList[j].city_id == this.city_id){
-                 area.city = this.cityList[j].name
-                 area.city_id = this.cityList[j].city_id
-                 break
-             }
-          }
-          obj[this.province_id] = this.city_id
-          this.goodsForm.address_ids.push(obj)
-          this.areaList.push(area)
-        }
+    // 区域列表删除
+    deleteArea: function(index) {
+      this.areaList.splice(index, 1)
+      this.goodsForm.address_ids.splice(index, 1)
     },
-    //获取团长信息
-    async getCommander(){
+    // 选择完省市之后 点击添加
+    addArea: function() {
+      if (this.province_id && this.city_id) {
+        // 获取选择省市的名称
+        let area = { 'province_id': '', 'province': '', 'city_id': '', 'city': '' }
+        let obj = {}
+        for (let i = 0; i < this.provinceList.length; i++) {
+          if (this.provinceList[i].province_id == this.province_id) {
+            area.province = this.provinceList[i].name
+            area.procince_id = this.provinceList[i].province_id
+            break
+          }
+        }
+        for (let j = 0; j < this.cityList.length; j++) {
+          if (this.cityList[j].city_id == this.city_id) {
+            area.city = this.cityList[j].name
+            area.city_id = this.cityList[j].city_id
+            break
+          }
+        }
+        obj[this.province_id] = this.city_id
+        this.goodsForm.address_ids.push(obj)
+        this.areaList.push(area)
+      }
+    },
+    // 获取团长信息
+    async getCommander() {
       this.$store.dispatch('getlist').then(() => {
         const res = this.$store.getters.colonelistRes
         this.coloneList = res.data
@@ -264,51 +264,51 @@ export default {
       this.areaList = []
       this.commander = []
       try {
-         await goodsView(this.$route.query.id).then(res=>{
-           this.goodsForm = res
-            var cnames = Object.values(res.goods_show_region)
-           //城市列表渲染
-            for(let k=0;k<res.show_region.length;k++){
-              var area={'province_id':'','province':'','city_id':'','city':''}
-              var obj = {}
-              area.province_id = res.show_region[k].province_id
-              area.city_id = res.show_region[k].city_id
-              area.province = cnames[k].split(' ')[0]
-              area.city = cnames[k].split(' ')[1]
-              this.areaList.push(area)
-              obj[area.province_id] = area.city_id
-              subids.push(obj)
+        await goodsView(this.$route.query.id).then(res => {
+          this.goodsForm = res
+          var cnames = Object.values(res.goods_show_region)
+          //城市列表渲染
+          for (let k = 0; k < res.show_region.length; k++) {
+            var area = { 'province_id': '', 'province': '', 'city_id': '', 'city': '' }
+            var obj = {}
+            area.province_id = res.show_region[k].province_id
+            area.city_id = res.show_region[k].city_id
+            area.province = cnames[k].split(' ')[0]
+            area.city = cnames[k].split(' ')[1]
+            this.areaList.push(area)
+            obj[area.province_id] = area.city_id
+            subids.push(obj)
+          }
+          this.goodsForm.address_ids = subids
+          //团长列表渲染
+          for (let s = 0; s < res.show_commander.length; s++) {
+            this.commander.push(res.show_commander[s].commander_id)
+          }
+          if (res.show_region_type === 0) {
+            this.goodsForm.show_region.province_id = '1'
+          }
+          if (res.goods_sku_status === true) {
+            this.spec = '1'
+          }
+          this.$refs.box.setContent(res.details)
+          //产品详情图
+          if (res.detail_picture.length > 0) {
+            for (let a = 0; a < res.detail_picture.length; a++) {
+              this.dialogImageUrl.push({
+                'name': res.detail_picture[a].id,
+                'url': res.detail_picture[a].image
+              })
             }
-           this.goodsForm.address_ids = subids
-            //团长列表渲染
-            for(let s=0;s<res.show_commander.length;s++){
-              this.commander.push(res.show_commander[s].commander_id)
-            }
-           if (res.show_region_type === 0) {
-             this.goodsForm.show_region.province_id = '1'
-           }
-           if (res.goods_sku_status === true) {
-             this.spec = '1'
-           }
-           this.$refs.box.setContent(res.details)
-           //产品详情图
-           if (res.detail_picture.length > 0) {
-             for (let a = 0; a < res.detail_picture.length; a++) {
-               this.dialogImageUrl.push({
-                 'name': res.detail_picture[a].id,
-                 'url': res.detail_picture[a].image
-               })
-             }
-           }
-           //商品开始时间 结束时间处理
-           this.start_date =  res.start_at.split(' ')[0]
-           this.start_at_time = res.start_at.split(' ')[1].slice(0,5)
-           this.end_date = res.end_at.split(' ')[0]
-           this.end_at_time = res.end_at.split(' ')[1].slice(0,5)
-           if(res.delivery_at){
-             this.delivery_date = res.delivery_at.split(' ')[0]
-             this.delivery_at_time = res.delivery_at.split(' ')[1].slice(0,5)
-           }
+          }
+          //商品开始时间 结束时间处理
+          this.start_date = res.start_at.split(' ')[0]
+          this.start_at_time = res.start_at.split(' ')[1].slice(0, 5)
+          this.end_date = res.end_at.split(' ')[0]
+          this.end_at_time = res.end_at.split(' ')[1].slice(0, 5)
+          if (res.delivery_at) {
+            this.delivery_date = res.delivery_at.split(' ')[0]
+            this.delivery_at_time = res.delivery_at.split(' ')[1].slice(0, 5)
+          }
         })
       } catch (err) {
         console.log(err)

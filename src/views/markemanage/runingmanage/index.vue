@@ -72,7 +72,7 @@
         <div class="runintegral">
           <el-form :inline="true" class="demo-form-inline">
             <!-- <el-radio :label="3" @change="toggleSelection(tableData3)">全选</el-radio> -->
-            <el-button class="select-all" @click="toggleSelection(tableData3)">全选表格</el-button>
+            <el-button class="select-all" @click="toggleSelection(runRecordList)">全选表格</el-button>
             <div class="export">
               <el-button size="medium" type="primary" @click="exportExcel">导出会员列表</el-button>
             </div>
@@ -165,6 +165,8 @@ export default {
         try{
            await clearUserRecoed(id).then(res=>{
               this.$message.success('操作成功')
+              //渲染页面
+             this.getrunRecordList()
            })
         }catch(err){
            console.log(err)

@@ -35,7 +35,7 @@ export default {
                    'Authorization':'Bearer'+ ' ' +  _this.$store.getters.token
                 },
                  url:'https://suokekj.com/api/api/wechat/authorize/generate-mini-program',
-                 type:'post',
+                 type:'POST',
                  data:{
                     'auth_code':auth_code
                  },

@@ -5,8 +5,8 @@ import { getToken, setToken } from '@/utils/auth' // 导入token
 import qs from 'qs'
 // import { promises } from 'fs'
 const baseUrl = process.env.BASE_API
-// 小程序绑定接口
-const baseUrl_app = 'https://wwww.suokekj.com/'
+const baseUrl2 = 'http://newapi.qzlckj.com/'
+const baseLogin = 'http://sso.qzlckj.com/'
 axios.defaults.isRetryRequest = false
 // 创建axios实例
 // request拦截器
@@ -82,7 +82,9 @@ function getRefreshToken() {
 
 export const post = (url, data, config = {}) => {
   return new Promise((resolve, reject) => {
-    axios.post(baseUrl + url, data, config).then(res => {
+    const ConfigData = config
+    ConfigData.params = data
+    axios.post(baseUrl + url, {}, config).then(res => {
       resolve(res)
     }).catch(err => {
       reject(err)
@@ -94,8 +96,18 @@ export const GET = (url, data = {}, config = {}) => {
   return new Promise((resolve, reject) => {
     const ConfigData = config
     ConfigData.params = data
-
     axios.get(baseUrl + url, ConfigData).then(res => {
+      resolve(res.data)
+    }).catch(err => {
+      reject(err)
+    })
+  })
+}
+export const getlist = (url, data = {}, config = {}) => {
+  return new Promise((resolve, reject) => {
+    const ConfigData = config
+    ConfigData.params = data
+    axios.get(baseUrl2 + url, ConfigData).then(res => {
       resolve(res.data)
     }).catch(err => {
       reject(err)
@@ -105,7 +117,9 @@ export const GET = (url, data = {}, config = {}) => {
 
 export const patch = (url, data, config = {}) => {
   return new Promise((resolve, reject) => {
-    axios.patch(`${baseUrl}${url}`, { data }, config).then(res => {
+    const ConfigData = config
+    ConfigData.params = data
+    axios.patch(`${baseUrl}${url}`, {}, config).then(res => {
       resolve(res)
     }).catch(err => {
       reject(err)
@@ -126,10 +140,10 @@ export const delate = (url, data, config = {}) => {
   })
 }
 
-// 小程序绑定接口走这个
-export const PostApp = (url, data, config = {}) => {
+//登录接口api
+export const loginpost = (url, data, config = {}) => {
   return new Promise((resolve, reject) => {
-    axios.post(baseUrl_app + url, data, config).then(res => {
+    axios.post(baseLogin + url, data, config).then(res => {
       resolve(res)
     }).catch(err => {
       reject(err)
@@ -137,15 +151,55 @@ export const PostApp = (url, data, config = {}) => {
   })
 }
 
-export const GetApp = (url, data = {}, config = {}) => {
+export const loginget = (url, data = {}, config = {}) => {
   return new Promise((resolve, reject) => {
     const ConfigData = config
     ConfigData.params = data
 
-    axios.get(baseUrl_app + url, ConfigData).then(res => {
+    axios.get(baseLogin + url, ConfigData).then(res => {
       resolve(res.data)
     }).catch(err => {
       reject(err)
     })
   })
 }
+//添加类目
+export const addsave = (url, data = {}, config = {}) => {
+  return new Promise((resolve, reject) => {
+    const ConfigData = config
+    ConfigData.params = data
+
+    axios.post('http://newapi.qzlckj.com/' + url, ConfigData).then(res => {
+      resolve(res.data)
+    }).catch(err => {
+      reject(err)
+    })
+  })
+}
+//修改类目
+export const updateclass = (url, data = {}, config = {}) => {
+  return new Promise((resolve, reject) => {
+    const ConfigData = config
+    ConfigData.params = data
+
+    axios.post('http://newapi.qzlckj.com/' + url, ConfigData).then(res => {
+      resolve(res.data)
+    }).catch(err => {
+      reject(err)
+    })
+  })
+}
+//删除
+export const deleteclass = (url, data = {}, config = {}) => {
+  return new Promise((resolve, reject) => {
+    const ConfigData = config
+    ConfigData.params = data
+
+    axios.delete('http://newapi.qzlckj.com/' + url, ConfigData).then(res => {
+      resolve(res.data)
+    }).catch(err => {
+      reject(err)
+    })
+  })
+}
+

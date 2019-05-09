@@ -6,7 +6,8 @@ const user = {
     token: getToken(),
     name: '',
     avatar: '',
-    roles: []
+    roles: [],
+    menus:''
   },
 
   mutations: {
@@ -21,34 +22,26 @@ const user = {
     },
     SET_ROLES: (state, roles) => {
       state.roles = roles
+    },
+    SET_MENUS: (state, menus) => {
+      state.menus = menus
     }
   },
 
   actions: {
-    // 登录
-    // Login({ commit }, userInfo) {
-    //   const username = userInfo.username.trim()
-    //   return new Promise((resolve, reject) => {
-    //     login(username, userInfo.password).then(response => {
-    //       const data = response.data
-    //       setToken(data.token)
-    //       commit('SET_TOKEN', data.token)
-    //       resolve()
-    //     }).catch(error => {
-    //       reject(error)
-    //     })
-    //   })
-    // },
     async Login({ commit }, userInfo) {//登录获得token
       const username = userInfo.username.trim()
         try {
-        await Login(username, userInfo.password, userInfo.qrcode, userInfo.qrcode_key).then(res=>{
-          setToken(res.data.access_token)
-          //localStorage.setItem(TokenKey, res.data.access_token)
-          //console.log(res.data.access_token)
-          commit('SET_TOKEN',res.data.access_token)//res.data.access_token
-          console.log(user.state.token)  //token设置成功
-          return Promise.resolve()
+        await Login(username, userInfo.password).then(res=>{
+          if(res.data.success){
+            setToken(res.data.message)
+            commit('SET_TOKEN',res.data.message)//res.data.access_token
+            //console.log(user.state.token)  //token设置成功
+            return Promise.resolve()
+          }else if(!res.data.success){
+            this.$message.warning('用户名和密码不正确,请重新输入')
+          }
+
         })
       } catch (err) {
         return Promise.reject(err)
@@ -59,43 +52,21 @@ const user = {
     async GetInfo({ commit, state }) {
       try {
         const res = await getInfo(state.token)
-        localStorage.setItem('id', res.id)
-        localStorage.setItem('name', res.name)
+        console.log(res)
+        localStorage.setItem('id', res.data.id)
+        localStorage.setItem('name', res.data.name)
         if (res.roles && res.roles.length > 0) {
             commit('SET_ROLES', res.roles)
         } else {
           return Promise.reject('getInfo: roles must be a non-null array !')
         }
-        commit('SET_NAME', res.name)
-        commit('SET_AVATAR', res.avatar)
+        commit('SET_NAME', res.data.name)
+        //commit('SET_AVATAR', res.data.avatar)
         return Promise.resolve(res)
       } catch (err) {
         return Promise.reject(err)
       }
     }
-
-    // 登出
-    // LogOut({ commit, state }) {
-    //   return new Promise((resolve, reject) => {
-    //     logout(state.token).then(() => {
-    //       commit('SET_TOKEN', '')
-    //       commit('SET_ROLES', [])
-    //       removeToken()
-    //       resolve()
-    //     }).catch(error => {
-    //       reject(error)
-    //     })
-    //   })
-    // }
-
-    // 前端 登出
-    // FedLogOut({ commit }) {
-    //   return new Promise(resolve => {
-    //     commit('SET_TOKEN', '')
-    //     removeToken()
-    //     resolve()
-    //   })
-    // }
   }
 }
 

@@ -5,10 +5,6 @@ const getters = {
   avatar: state => state.user.avatar,
   name: state => state.user.name,
   roles: state => state.user.roles,
-  colonelistRes: state => state.colonelist.res,
-  coloneList: state => state.colonelist.list,
-  coloneStatus: state => state.colonelist.conloneStatus,
-  addres: state => state.addshop.addres,
-  del: state => state.deleteshop.del
+  menus:state => state.user.menus
 }
 export default getters

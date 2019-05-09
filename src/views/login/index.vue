@@ -1,7 +1,7 @@
 <template>
   <div class="login-container">
     <el-form ref="loginForm" :model="loginForm" :rules="loginRules" class="login-form" auto-complete="on" label-position="left">
-      <h3 class="title">社区团后台</h3>
+      <h3 class="title">后台管理系统</h3>
       <el-form-item prop="username">
         <span class="svg-container">
           <svg-icon icon-class="user" />
@@ -23,7 +23,6 @@
           <svg-icon icon-class="eye" />
         </span>
       </el-form-item>
-      <el-input v-model="loginForm.qrcode" placeholder="请输入验证码" style="width:16rem;background:rgba(0, 0, 0, 0.1) "/><img :src="verificationimg" style="margin-left:30px" @click="getQrCode">
       <el-form-item>
         <el-button :loading="loading" type="primary" style="width:100%;" @click.native.prevent="handleLogin">
           登录
@@ -34,8 +33,6 @@
 </template>
 
 <script>
-// import { isvalidUsername } from '@/utils/validate'
-import { captchas } from '@/api/login'
 
 export default {
   name: 'Login',
@@ -58,9 +55,7 @@ export default {
     return {
       loginForm: {
         username: '',
-        password: '',
-        qrcode: '',
-        qrcode_key: ''
+        password: ''
       },
       verificationimg: '',
       loginRules: {
@@ -85,19 +80,9 @@ export default {
     }
   },
   mounted: function() {
-    this.getQrCode()
+
   },
   methods: {
-    // 获取图像验证码
-    async getQrCode() {
-      try {
-        const res = await captchas()
-        this.loginForm.qrcode_key = res.data.captcha_key
-        this.verificationimg = res.data.captcha_image_content
-      } catch (err) {
-        console.log(err)
-      }
-    },
     showPwd() {
       if (this.pwdType === 'password') {
         this.pwdType = ''
@@ -105,27 +90,13 @@ export default {
         this.pwdType = 'password'
       }
     },
-    handleLogin() {
-      this.$refs.loginForm.validate(valid => {
-        if (valid) {
-          this.loading = true
-          this.$store.dispatch('Login', this.loginForm).then(() => {
-            this.loading = false
-            this.$router.push({ path: this.redirect || '/' })
-          }).catch((err) => {
-            if (err.response.status === 500) {
-              this.user()
-              this.getQrCode()
-            } else if (err.response.status === 401) {
-              this.captchasErr()
-              this.getQrCode()
-            }
-            this.loading = false
-          })
-        } else {
-          console.log('error submit!!')
-          return false
-        }
+    async  handleLogin() {
+      this.loading = true
+      this.$store.dispatch('Login',this.loginForm).then((res) => {
+        this.loading = false
+        this.$router.push({ path: this.redirect || '/' })
+      }).catch((err) => {
+        this.loading = false
       })
     },
     user() {

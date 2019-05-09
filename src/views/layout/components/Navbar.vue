@@ -4,9 +4,10 @@
     <breadcrumb />
     <el-dropdown class="avatar-container" trigger="click">
       <div class="avatar-wrapper">
-        <!-- <img :src="avatar+'?imageView2/1/w/80/h/80'" class="user-avatar"> -->
-        <i id="user-name">{{ name }}</i>
-        <i class="el-icon-caret-bottom"/>
+         <!--<img :src="avatar+'?imageView2/1/w/80/h/80'" class="user-avatar">-->
+        <p id="user-name">{{ name }}
+          <i class="el-icon-caret-bottom"/>
+        </p>
       </div>
       <el-dropdown-menu slot="dropdown" class="user-dropdown">
         <router-link class="inlineBlock" to="/">
@@ -27,7 +28,7 @@ import { mapGetters } from 'vuex'
 import Breadcrumb from '@/components/Breadcrumb'
 import Hamburger from '@/components/Hamburger'
 import { getToken, removeToken } from '@/utils/auth'
-import { Logout } from '@/api/login'
+import { getInfo } from '@/api/login'
 
 export default {
   components: {
@@ -47,21 +48,23 @@ export default {
     ])
   },
   mounted: function() {
-    this.name = localStorage.name
+    this.getUserinfo()
   },
   methods: {
     toggleSideBar() {
       this.$store.dispatch('ToggleSideBar')
     },
     async logout() {
-      const out = getToken()
-      try {
-        await Logout(out)
-        removeToken()
-        this.$router.push({ name: 'login' })
-      } catch (err) {
-        console.log(err)
-      }
+      this.$router.push({ name: 'login' })
+    },
+    async getUserinfo(){
+       try{
+          await getInfo(this.$store.getters.token).then(res=>{
+             this.name = res.data.name
+          })
+       }catch(err){
+         conole.log(err)
+       }
     }
   }
 }
@@ -115,6 +118,9 @@ export default {
   color: #fff;
   font-style: normal;
   font-size: 16px;
+}
+#user-name>i{
+   margin-top:-19px;
 }
 </style>
 
